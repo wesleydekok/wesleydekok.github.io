@@ -18,7 +18,7 @@
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  html, body { scroll-behavior: smooth; margin: 0; padding: 0; background: var(--purple-deep); }
   body {
     font-family: 'DM Sans', sans-serif;
     background: var(--cream);
@@ -104,6 +104,8 @@
     display: flex;
     align-items: center;
     overflow: hidden;
+    margin-top: 0;
+    padding-top: 0;
   }
 
   .hero::before {
@@ -616,9 +618,9 @@
     .footer-bottom { flex-direction: column; gap: 0.5rem; text-align: center; padding: 1.5rem; }
 
     /* Mobile nav toggle */
-    .nav-mobile-btn { display: flex; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+    .nav-mobile-btn { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; z-index: 101; }
     .nav-mobile-btn span { display: block; width: 24px; height: 2px; background: white; border-radius: 2px; transition: 0.3s; }
-    .nav-links.open { display: flex; flex-direction: column; position: fixed; top: 68px; left: 0; right: 0; background: rgba(45,27,105,0.98); padding: 1.5rem 2rem; gap: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 99; }
+    .nav-links.open { display: flex !important; flex-direction: column; position: fixed; top: 68px; left: 0; right: 0; background: rgba(45,27,105,0.98); padding: 1.5rem 2rem; gap: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 99; }
     .nav-links.open li a { font-size: 1rem; }
   }
   @media (max-width: 480px) {
@@ -933,5 +935,3 @@
 </script>
 </body>
 </html>
-
-S

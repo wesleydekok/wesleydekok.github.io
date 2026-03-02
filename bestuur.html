@@ -498,9 +498,9 @@
   @media (max-width: 768px) {
     nav { padding: 1rem 1.5rem; }
     .nav-links { display: none; }
-    .nav-mobile-btn { display: flex; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+    .nav-mobile-btn { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; z-index: 101; }
     .nav-mobile-btn span { display: block; width: 24px; height: 2px; background: white; border-radius: 2px; }
-    .nav-links.open { display: flex; flex-direction: column; position: fixed; top: 68px; left: 0; right: 0; background: rgba(45,27,105,0.98); padding: 1.5rem 2rem; gap: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 99; }
+    .nav-links.open { display: flex !important; flex-direction: column; position: fixed; top: 68px; left: 0; right: 0; background: rgba(45,27,105,0.98); padding: 1.5rem 2rem; gap: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 99; }
 
     .page-header { padding: 100px 1.5rem 3rem; }
     .page-header h1 { font-size: 2.5rem; }
