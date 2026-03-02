@@ -455,3 +455,32 @@
 </div>
 
 <script data-cfasync="fals
+<script>
+  var mobileBtn = document.querySelector('.nav-mobile-btn');
+  var navLinks = document.querySelector('.nav-links');
+  if (mobileBtn && navLinks) {
+    mobileBtn.addEventListener('click', function() {
+      navLinks.classList.toggle('open');
+      var spans = mobileBtn.querySelectorAll('span');
+      mobileBtn.classList.toggle('is-active');
+      if (mobileBtn.classList.contains('is-active')) {
+        spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+        spans[1].style.opacity = '0';
+        spans[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
+      } else {
+        spans[0].style.transform = '';
+        spans[1].style.opacity = '';
+        spans[2].style.transform = '';
+      }
+    });
+    navLinks.querySelectorAll('a').forEach(function(link) {
+      link.addEventListener('click', function() {
+        navLinks.classList.remove('open');
+        mobileBtn.classList.remove('is-active');
+        mobileBtn.querySelectorAll('span').forEach(function(s){ s.style.transform=''; s.style.opacity=''; });
+      });
+    });
+  }
+</script>
+</body>
+</html>
