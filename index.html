@@ -734,56 +734,13 @@
       <p class="section-label">Agenda</p>
       <h2 class="section-title">Activities</h2>
     </div>
-    <a href="#" style="color:var(--purple-mid);text-decoration:none;font-size:0.9rem;letter-spacing:0.05em;border-bottom:1px solid var(--purple-light);padding-bottom:2px;">All activities →</a>
+    <a href="activiteiten.html" style="color:var(--purple-mid);text-decoration:none;font-size:0.9rem;letter-spacing:0.05em;border-bottom:1px solid var(--purple-light);padding-bottom:2px;">All activities →</a>
   </div>
-  <div class="activities-grid">
-    <div class="activity-card">
-      <div class="activity-img" style="background:linear-gradient(135deg,#3D1F7A,#7B3FAF);">
-        <span class="activity-emoji">🎓</span>
-        <div class="activity-img-overlay"></div>
-        <span class="activity-tag">Featured</span>
-      </div>
-      <div class="activity-body">
-        <p class="activity-date">Februari 2026</p>
-        <h3 class="activity-title">New Board Introduction Night</h3>
-        <p class="activity-desc">Meet the new IRIS board of 2025/2026 during a fun evening of networking, drinks and new connections.</p>
-      </div>
-    </div>
-    <div class="activity-card">
-      <div class="activity-img" style="background:linear-gradient(135deg,#5B2D8E,#A855C8);">
-        <span class="activity-emoji">📚</span>
-        <div class="activity-img-overlay"></div>
-        <span class="activity-tag">Study</span>
-      </div>
-      <div class="activity-body">
-        <p class="activity-date">Maart 2026</p>
-        <h3 class="activity-title">Studysessie & Workshops</h3>
-        <p class="activity-desc">Study together with guidance from teachers and senior students.</p>
-      </div>
-    </div>
-    <div class="activity-card">
-      <div class="activity-img" style="background:linear-gradient(135deg,#2D1B69,#5B2D8E);">
-        <span class="activity-emoji">🌐</span>
-        <div class="activity-img-overlay"></div>
-        <span class="activity-tag">Network</span>
-      </div>
-      <div class="activity-body">
-        <p class="activity-date">April 2026</p>
-        <h3 class="activity-title">Career Event</h3>
-        <p class="activity-desc">Meet potential employers and alumni at our annual career fair.</p>
-      </div>
-    </div>
-    <div class="activity-card">
-      <div class="activity-img" style="background:linear-gradient(135deg,#7B3FAF,#2D1B69);">
-        <span class="activity-emoji">🎉</span>
-        <div class="activity-img-overlay"></div>
-        <span class="activity-tag">Social</span>
-      </div>
-      <div class="activity-body">
-        <p class="activity-date">Mei 2026</p>
-        <h3 class="activity-title">Annual Celebration</h3>
-        <p class="activity-desc">The biggest party of the year to celebrate the academic year together.</p>
-      </div>
+  <div class="activities-grid" id="homeActivitiesGrid">
+    <!-- Loaded dynamically from iris-activities.json -->
+    <div class="activity-card" style="opacity:0.4;pointer-events:none;">
+      <div class="activity-img" style="background:linear-gradient(135deg,#3D1F7A,#7B3FAF);"><span class="activity-emoji">⏳</span><div class="activity-img-overlay"></div></div>
+      <div class="activity-body"><p class="activity-date">Loading...</p><h3 class="activity-title">Loading activities</h3></div>
     </div>
   </div>
 </section>
@@ -953,6 +910,42 @@
       });
     });
   }
+</script>
+<script>
+  // Load activities dynamically on homepage (shows first 4 upcoming)
+  function renderHomeActivities(events) {
+    var upcoming = events.filter(function(e){ return e.status === 'upcoming'; }).slice(0, 4);
+    var grid = document.getElementById('homeActivitiesGrid');
+    if (!grid) return;
+    if (upcoming.length === 0) {
+      grid.innerHTML = '<p style="color:#9a8aaa;font-size:0.9rem;grid-column:1/-1;">No upcoming activities yet. Check back soon!</p>';
+      return;
+    }
+    grid.innerHTML = upcoming.map(function(ev) {
+      return '<div class="activity-card">' +
+        '<div class="activity-img" style="background:' + ev.color + ';">' +
+          '<span class="activity-emoji">' + ev.emoji + '</span>' +
+          '<div class="activity-img-overlay"></div>' +
+          '<span class="activity-tag">' + ev.tag + '</span>' +
+        '</div>' +
+        '<div class="activity-body">' +
+          '<p class="activity-date">' + ev.date + '</p>' +
+          '<h3 class="activity-title">' + ev.title + '</h3>' +
+          '<p class="activity-desc">' + ev.desc + '</p>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  fetch('iris-activities.json')
+    .then(function(r){ return r.json(); })
+    .then(function(data){ renderHomeActivities(data); })
+    .catch(function() {
+      try {
+        var stored = localStorage.getItem('iris_events');
+        if (stored) { renderHomeActivities(JSON.parse(stored)); }
+      } catch(e) {}
+    });
 </script>
 </body>
 </html>
