@@ -938,7 +938,7 @@
     }).join('');
   }
 
-  fetch('content/activiteiten/index.json?' + Date.now())
+  fetch('https://raw.githubusercontent.com/wesleydekok/wesleydekok.github.io/main/content/activiteiten/index.json?' + Date.now())
     .then(function(r){ return r.json(); })
     .then(function(data){
       var items = Array.isArray(data) ? data : (data.items || []);

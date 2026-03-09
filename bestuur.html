@@ -697,7 +697,7 @@
 </script>
 <script>
   function loadContentFolder(folder) {
-    return fetch(folder + '/index.json')
+    return fetch('https://raw.githubusercontent.com/wesleydekok/wesleydekok.github.io/main/' + folder + '/index.json')
       .then(function(r){ return r.json(); })
       .then(function(data){ return Array.isArray(data) ? data : (data.items || []); })
       .catch(function(){ return []; });
