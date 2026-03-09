@@ -914,7 +914,16 @@
 </script>
 <script>
   // Load activities dynamically on homepage (shows first 4 upcoming)
-  function renderHomeActivities(events) {
+  function loadContentFolder(folder) {
+    return fetch(folder + '/index.json')
+      .then(function(r){ return r.json(); })
+      .catch(function(){
+        // Fallback: try iris-activities.json for backwards compat
+        return fetch('iris-activities.json').then(function(r){ return r.json(); }).catch(function(){ return []; });
+      });
+  }
+
+    function renderHomeActivities(events) {
     var upcoming = events.filter(function(e){ return e.status === 'upcoming'; }).slice(0, 4);
     var grid = document.getElementById('homeActivitiesGrid');
     if (!grid) return;
@@ -938,16 +947,15 @@
     }).join('');
   }
 
-  // Load all JSON files from content/activiteiten/
-  fetch('content/activiteiten/')
-    .then(function(r){ return r.text(); })
-    .then(function(html) {
-      var matches = html.match(/href="([^"]+\.json)"/g) || [];
-      var urls = matches.map(function(m){ return 'content/activiteiten/' + m.match(/href="([^"]+)"/)[1]; });
-      return Promise.all(urls.map(function(u){ return fetch(u).then(function(r){ return r.json(); }); }));
-    })
+  fetch('iris-activities.json')
+    .then(function(r){ return r.json(); })
     .then(function(data){ renderHomeActivities(data); })
-    .catch(function(){ renderHomeActivities([]); });
+    .catch(function() {
+      try {
+        var stored = localStorage.getItem('iris_events');
+        if (stored) { renderHomeActivities(JSON.parse(stored)); }
+      } catch(e) {}
+    });
 </script>
 </body>
 </html>

@@ -1,0 +1,46 @@
+[
+  {
+    "title": "New Board Introduction Night",
+    "desc": "Meet the new IRIS board of 2025/2026 during a fun evening of networking, drinks and new connections.",
+    "date": "February 2026",
+    "location": "Zuyd University",
+    "status": "upcoming",
+    "tag": "Featured",
+    "color": "linear-gradient(135deg,#3D1F7A,#7B3FAF)",
+    "emoji": "🎓",
+    "link": "https://forms.gle/3v6Go2TLc9qXmZ2S8"
+  },
+  {
+    "title": "Study Session & Workshops",
+    "desc": "Study together with guidance from teachers and senior students.",
+    "date": "March 2026",
+    "location": "TBA",
+    "status": "upcoming",
+    "tag": "Study",
+    "color": "linear-gradient(135deg,#5B2D8E,#A855C8)",
+    "emoji": "📚",
+    "link": "https://forms.gle/3v6Go2TLc9qXmZ2S8"
+  },
+  {
+    "title": "Career Event",
+    "desc": "Meet potential employers and alumni at our annual career fair.",
+    "date": "April 2026",
+    "location": "TBA",
+    "status": "upcoming",
+    "tag": "Network",
+    "color": "linear-gradient(135deg,#2D1B69,#5B2D8E)",
+    "emoji": "🌐",
+    "link": "https://forms.gle/3v6Go2TLc9qXmZ2S8"
+  },
+  {
+    "title": "Annual Celebration",
+    "desc": "The biggest party of the year to celebrate the academic year together.",
+    "date": "May 2026",
+    "location": "TBA",
+    "status": "upcoming",
+    "tag": "Social",
+    "color": "linear-gradient(135deg,#7B3FAF,#2D1B69)",
+    "emoji": "🎉",
+    "link": "https://forms.gle/3v6Go2TLc9qXmZ2S8"
+  }
+]

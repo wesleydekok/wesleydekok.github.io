@@ -2,6 +2,7 @@ backend:
   name: github
   repo: wesleydekok/wesleydekok.github.io
   branch: main
+  client_id: Ov23liwLmrRaXjmTtAbZ
 
 media_folder: "uploads"
 public_folder: "/uploads"
@@ -12,99 +13,115 @@ collections:
 
   - name: "activiteiten"
     label: "Activiteiten"
-    label_singular: "Activiteit"
-    folder: "content/activiteiten"
-    create: true
-    slug: "{{slug}}"
-    format: json
-    fields:
-      - { label: "Titel", name: "title", widget: "string" }
-      - { label: "Beschrijving", name: "desc", widget: "text" }
-      - { label: "Datum", name: "date", widget: "string", hint: "bijv. maart 2026" }
-      - { label: "Locatie", name: "location", widget: "string", required: false }
-      - label: "Status"
-        name: "status"
-        widget: "select"
-        options:
-          - { label: "Aankomend", value: "upcoming" }
-          - { label: "Afgelopen", value: "past" }
-      - label: "Categorie"
-        name: "tag"
-        widget: "select"
-        options:
-          - { label: "Featured", value: "Featured" }
-          - { label: "Study", value: "Study" }
-          - { label: "Network", value: "Network" }
-          - { label: "Social", value: "Social" }
-          - { label: "Other", value: "Other" }
-      - label: "Kaartkleur"
-        name: "color"
-        widget: "select"
-        options:
-          - { label: "Paars diep", value: "linear-gradient(135deg,#3D1F7A,#7B3FAF)" }
-          - { label: "Paars licht", value: "linear-gradient(135deg,#5B2D8E,#A855C8)" }
-          - { label: "Paars donker", value: "linear-gradient(135deg,#2D1B69,#5B2D8E)" }
-          - { label: "Blauw", value: "linear-gradient(135deg,#1e3a5f,#2D6AA0)" }
-          - { label: "Groen", value: "linear-gradient(135deg,#1a4731,#22c55e)" }
-      - { label: "Emoji", name: "emoji", widget: "string", default: "🎓", hint: "Plak een emoji, bijv. 🎓 📚 🎉" }
-      - { label: "Aanmeldlink", name: "link", widget: "string", required: false, hint: "bijv. https://forms.gle/..." }
+    files:
+      - label: "Alle activiteiten"
+        name: "activiteiten"
+        file: "content/activiteiten/index.json"
+        fields:
+          - label: "Activiteiten"
+            name: "items"
+            widget: "list"
+            collapsed: false
+            fields:
+              - { label: "Titel", name: "title", widget: "string" }
+              - { label: "Beschrijving", name: "desc", widget: "text" }
+              - { label: "Datum", name: "date", widget: "string", hint: "bijv. maart 2026" }
+              - { label: "Locatie", name: "location", widget: "string", required: false }
+              - label: "Status"
+                name: "status"
+                widget: "select"
+                options:
+                  - { label: "Aankomend", value: "upcoming" }
+                  - { label: "Afgelopen", value: "past" }
+              - label: "Categorie"
+                name: "tag"
+                widget: "select"
+                options:
+                  - { label: "Featured", value: "Featured" }
+                  - { label: "Study", value: "Study" }
+                  - { label: "Network", value: "Network" }
+                  - { label: "Social", value: "Social" }
+                  - { label: "Other", value: "Other" }
+              - label: "Kaartkleur"
+                name: "color"
+                widget: "select"
+                options:
+                  - { label: "Paars diep", value: "linear-gradient(135deg,#3D1F7A,#7B3FAF)" }
+                  - { label: "Paars licht", value: "linear-gradient(135deg,#5B2D8E,#A855C8)" }
+                  - { label: "Paars donker", value: "linear-gradient(135deg,#2D1B69,#5B2D8E)" }
+                  - { label: "Blauw", value: "linear-gradient(135deg,#1e3a5f,#2D6AA0)" }
+                  - { label: "Groen", value: "linear-gradient(135deg,#1a4731,#22c55e)" }
+              - { label: "Emoji", name: "emoji", widget: "string", default: "🎓" }
+              - { label: "Aanmeldlink", name: "link", widget: "string", required: false }
 
   - name: "bestuur"
     label: "Bestuursleden"
-    label_singular: "Bestuurslid"
-    folder: "content/bestuur"
-    create: true
-    slug: "{{slug}}"
-    format: json
-    fields:
-      - { label: "Naam", name: "name", widget: "string" }
-      - label: "Functie"
-        name: "role"
-        widget: "select"
-        options:
-          - { label: "Voorzitter", value: "President" }
-          - { label: "Secretaris", value: "Secretary" }
-          - { label: "Penningmeester", value: "Treasurer" }
-          - { label: "Algemeen lid", value: "General Member" }
-      - label: "Jaar"
-        name: "year"
-        widget: "select"
-        options:
-          - { label: "2025–2026", value: "2025-2026" }
-          - { label: "2024–2025", value: "2024-2025" }
-          - { label: "2023–2024", value: "2023-2024" }
-      - { label: "Foto", name: "photo", widget: "image", required: false }
-      - { label: "LinkedIn", name: "linkedin", widget: "string", required: false }
+    files:
+      - label: "Alle bestuursleden"
+        name: "bestuur"
+        file: "content/bestuur/index.json"
+        fields:
+          - label: "Bestuursleden"
+            name: "items"
+            widget: "list"
+            collapsed: false
+            fields:
+              - { label: "Naam", name: "name", widget: "string" }
+              - label: "Functie"
+                name: "role"
+                widget: "select"
+                options:
+                  - { label: "Voorzitter", value: "President" }
+                  - { label: "Secretaris", value: "Secretary" }
+                  - { label: "Penningmeester", value: "Treasurer" }
+                  - { label: "Algemeen lid", value: "General Member" }
+              - label: "Jaar"
+                name: "year"
+                widget: "select"
+                options:
+                  - { label: "2025-2026", value: "2025-2026" }
+                  - { label: "2024-2025", value: "2024-2025" }
+                  - { label: "2023-2024", value: "2023-2024" }
+              - { label: "Foto", name: "photo", widget: "image", required: false }
+              - { label: "LinkedIn", name: "linkedin", widget: "string", required: false }
 
   - name: "sponsors"
     label: "Sponsors"
-    label_singular: "Sponsor"
-    folder: "content/sponsors"
-    create: true
-    slug: "{{slug}}"
-    format: json
-    fields:
-      - { label: "Naam", name: "name", widget: "string" }
-      - label: "Type"
-        name: "type"
-        widget: "select"
-        options:
-          - { label: "Hoofdsponsor", value: "main" }
-          - { label: "Partner", value: "partner" }
-      - { label: "Logo", name: "logo", widget: "image", required: false }
-      - { label: "Website", name: "url", widget: "string", required: false }
+    files:
+      - label: "Alle sponsors"
+        name: "sponsors"
+        file: "content/sponsors/index.json"
+        fields:
+          - label: "Sponsors"
+            name: "items"
+            widget: "list"
+            collapsed: false
+            fields:
+              - { label: "Naam", name: "name", widget: "string" }
+              - label: "Type"
+                name: "type"
+                widget: "select"
+                options:
+                  - { label: "Hoofdsponsor", value: "main" }
+                  - { label: "Partner", value: "partner" }
+              - { label: "Logo", name: "logo", widget: "image", required: false }
+              - { label: "Website", name: "url", widget: "string", required: false }
 
   - name: "nieuws"
     label: "Nieuwsberichten"
-    label_singular: "Nieuwsbericht"
-    folder: "content/nieuws"
-    create: true
-    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
-    format: json
-    fields:
-      - { label: "Titel", name: "title", widget: "string" }
-      - { label: "Datum", name: "date", widget: "datetime", format: "DD-MM-YYYY" }
-      - { label: "Samenvatting", name: "summary", widget: "text" }
-      - { label: "Inhoud", name: "body", widget: "markdown" }
-      - { label: "Omslagfoto", name: "image", widget: "image", required: false }
-      - { label: "Auteur", name: "author", widget: "string", required: false }
+    files:
+      - label: "Alle nieuwsberichten"
+        name: "nieuws"
+        file: "content/nieuws/index.json"
+        fields:
+          - label: "Berichten"
+            name: "items"
+            widget: "list"
+            collapsed: false
+            fields:
+              - { label: "Titel", name: "title", widget: "string" }
+              - { label: "Datum", name: "date", widget: "string" }
+              - { label: "Samenvatting", name: "summary", widget: "text" }
+              - { label: "Inhoud", name: "body", widget: "markdown" }
+              - { label: "Omslagfoto", name: "image", widget: "image", required: false }
+              - { label: "Auteur", name: "author", widget: "string", required: false }
