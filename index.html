@@ -938,15 +938,16 @@
     }).join('');
   }
 
-  fetch('iris-activities.json')
-    .then(function(r){ return r.json(); })
+  // Load all JSON files from content/activiteiten/
+  fetch('content/activiteiten/')
+    .then(function(r){ return r.text(); })
+    .then(function(html) {
+      var matches = html.match(/href="([^"]+\.json)"/g) || [];
+      var urls = matches.map(function(m){ return 'content/activiteiten/' + m.match(/href="([^"]+)"/)[1]; });
+      return Promise.all(urls.map(function(u){ return fetch(u).then(function(r){ return r.json(); }); }));
+    })
     .then(function(data){ renderHomeActivities(data); })
-    .catch(function() {
-      try {
-        var stored = localStorage.getItem('iris_events');
-        if (stored) { renderHomeActivities(JSON.parse(stored)); }
-      } catch(e) {}
-    });
+    .catch(function(){ renderHomeActivities([]); });
 </script>
 </body>
 </html>
