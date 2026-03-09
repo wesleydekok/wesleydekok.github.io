@@ -2,7 +2,6 @@ backend:
   name: github
   repo: wesleydekok/wesleydekok.github.io
   branch: main
-  client_id: Ov23liwLmrRaXjmTtAbZ
 
 media_folder: "uploads"
 public_folder: "/uploads"
