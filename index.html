@@ -914,16 +914,7 @@
 </script>
 <script>
   // Load activities dynamically on homepage (shows first 4 upcoming)
-  function loadContentFolder(folder) {
-    return fetch(folder + '/index.json')
-      .then(function(r){ return r.json(); })
-      .catch(function(){
-        // Fallback: try iris-activities.json for backwards compat
-        return fetch('iris-activities.json').then(function(r){ return r.json(); }).catch(function(){ return []; });
-      });
-  }
-
-    function renderHomeActivities(events) {
+  function renderHomeActivities(events) {
     var upcoming = events.filter(function(e){ return e.status === 'upcoming'; }).slice(0, 4);
     var grid = document.getElementById('homeActivitiesGrid');
     if (!grid) return;
@@ -947,15 +938,13 @@
     }).join('');
   }
 
-  fetch('iris-activities.json')
+  fetch('content/activiteiten/index.json?' + Date.now())
     .then(function(r){ return r.json(); })
-    .then(function(data){ renderHomeActivities(data); })
-    .catch(function() {
-      try {
-        var stored = localStorage.getItem('iris_events');
-        if (stored) { renderHomeActivities(JSON.parse(stored)); }
-      } catch(e) {}
-    });
+    .then(function(data){
+      var items = Array.isArray(data) ? data : (data.items || []);
+      renderHomeActivities(items);
+    })
+    .catch(function(){ renderHomeActivities([]); });
 </script>
 </body>
 </html>

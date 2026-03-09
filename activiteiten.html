@@ -329,31 +329,77 @@
 
 <script data-cfasync="fals
 <script>
-  var mobileBtn = document.querySelector('.nav-mobile-btn');
-  var navLinks = document.querySelector('.nav-links');
-  if (mobileBtn && navLinks) {
-    mobileBtn.addEventListener('click', function() {
-      navLinks.classList.toggle('open');
-      var spans = mobileBtn.querySelectorAll('span');
-      mobileBtn.classList.toggle('is-active');
-      if (mobileBtn.classList.contains('is-active')) {
-        spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
-        spans[1].style.opacity = '0';
-        spans[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
-      } else {
-        spans[0].style.transform = '';
-        spans[1].style.opacity = '';
-        spans[2].style.transform = '';
-      }
-    });
-    navLinks.querySelectorAll('a').forEach(function(link) {
-      link.addEventListener('click', function() {
-        navLinks.classList.remove('open');
-        mobileBtn.classList.remove('is-active');
-        mobileBtn.querySelectorAll('span').forEach(function(s){ s.style.transform=''; s.style.opacity=''; });
-      });
-    });
+  function showTab(tabName, btn) {
+    document.querySelectorAll('.tab-section').forEach(function(s){ s.classList.remove('active'); });
+    document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.getElementById('tab-' + tabName).classList.add('active');
+    btn.classList.add('active');
   }
+
+  var PIN_SVG = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+
+  function makeCard(ev, large) {
+    var link = ev.link ? ev.link : 'https://forms.gle/3v6Go2TLc9qXmZ2S8';
+    return '<div class="event-card' + (large ? ' large' : '') + (ev.status==='past' ? ' past' : '') + '">' +
+      '<div class="event-img" style="background:' + ev.color + (large ? ';' : ';height:180px;') + '">' +
+        '<span class="event-emoji">' + ev.emoji + '</span>' +
+        '<div class="event-img-overlay"></div>' +
+        '<span class="event-tag">' + ev.tag + '</span>' +
+        '<span class="event-date-badge">' + ev.date + '</span>' +
+      '</div>' +
+      '<div class="event-body">' +
+        '<div class="event-meta">' +
+          '<span class="event-meta-item">📅 ' + ev.date + '</span>' +
+          (ev.location ? '<span class="event-meta-item">📍 ' + ev.location + '</span>' : '') +
+        '</div>' +
+        '<h3 class="event-title">' + ev.title + '</h3>' +
+        '<p class="event-desc">' + ev.desc + '</p>' +
+      '</div>' +
+      '<div class="event-footer">' +
+        '<span class="event-location">' + PIN_SVG + ' ' + (ev.location || 'TBA') + '</span>' +
+        (ev.status === 'past'
+          ? '<span class="btn-small outline" style="opacity:0.6;cursor:default;">Past event</span>'
+          : '<a href="' + link + '" target="_blank" class="btn-small">Sign up →</a>') +
+      '</div>' +
+    '</div>';
+  }
+
+  function renderEvents(events) {
+    var upcoming = events.filter(function(e){ return e.status === 'upcoming'; });
+    var past = events.filter(function(e){ return e.status === 'past'; });
+
+    document.getElementById('countUpcoming').textContent = upcoming.length;
+    document.getElementById('countPast').textContent = past.length;
+
+    var fg = document.getElementById('featuredGrid');
+    if (upcoming.length === 0) {
+      fg.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><h3 style="font-family:'Playfair Display',serif;color:var(--purple-deep);">No upcoming events yet</h3></div>';
+    } else {
+      fg.style.gridTemplateColumns = upcoming.length >= 2 ? '2fr 1fr' : '1fr';
+      var html = makeCard(upcoming[0], true);
+      if (upcoming[1]) html += '<div style="display:flex;flex-direction:column;gap:1.5rem;">' + makeCard(upcoming[1], false) + '</div>';
+      fg.innerHTML = html;
+    }
+
+    var ug = document.getElementById('upcomingGrid');
+    ug.innerHTML = upcoming.length === 0
+      ? '<div class="empty-state" style="grid-column:1/-1;"><p>No upcoming events.</p></div>'
+      : upcoming.map(function(e){ return makeCard(e, false); }).join('');
+
+    var pg = document.getElementById('pastGrid');
+    pg.innerHTML = past.length === 0
+      ? '<div class="empty-state" style="grid-column:1/-1;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(168,85,200,0.3)" stroke-width="1.5" style="margin:0 auto 1rem;display:block;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><h3 style="font-family:'Playfair Display',serif;color:var(--purple-deep);font-size:1.4rem;margin-bottom:0.5rem;">No past events yet</h3><p>Past events will appear here once the year gets going.</p></div>'
+      : past.map(function(e){ return makeCard(e, false); }).join('');
+  }
+
+  // Load from content/activiteiten/index.json (managed by Sveltia CMS)
+  fetch('content/activiteiten/index.json?' + Date.now())
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var items = Array.isArray(data) ? data : (data.items || []);
+      renderEvents(items);
+    })
+    .catch(function(){ renderEvents([]); });
 </script>
 </body>
 </html>
