@@ -201,11 +201,11 @@
         '<span class="event-emoji">' + ev.emoji + '</span>' +
         '<div class="event-img-overlay"></div>' +
         '<span class="event-tag">' + ev.tag + '</span>' +
-        '<span class="event-date-badge">' + ev.date + '</span>' +
+        '<span class="event-date-badge">' + formatDate(ev.date) + '</span>' +
       '</div>' +
       '<div class="event-body">' +
         '<div class="event-meta">' +
-          '<span class="event-meta-item">📅 ' + ev.date + '</span>' +
+          '<span class="event-meta-item">📅 ' + formatDate(ev.date) + '</span>' +
           (ev.location ? '<span class="event-meta-item">📍 ' + ev.location + '</span>' : '') +
         '</div>' +
         '<h3 class="event-title">' + ev.title + '</h3>' +
@@ -220,16 +220,34 @@
     '</div>';
   }
 
+  function parseDate(s) {
+    if (!s) return new Date(8640000000000000);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(s + 'T00:00:00');
+    var dmy = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if (dmy) return new Date(+dmy[3], +dmy[2]-1, +dmy[1]);
+    var p = new Date(s);
+    return isNaN(p) ? new Date(8640000000000000) : p;
+  }
+
+  function formatDate(s) {
+    if (!s) return '';
+    var d = parseDate(s);
+    if (d.getTime() >= new Date(8640000000000000).getTime()) return s;
+    return d.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
   function renderEvents(events) {
     var upcoming = events.filter(function(e){ return e.status === 'upcoming'; });
     var past = events.filter(function(e){ return e.status === 'past'; });
+    upcoming.sort(function(a,b){ return parseDate(a.date) - parseDate(b.date); });
+    past.sort(function(a,b){ return parseDate(b.date) - parseDate(a.date); });
 
     document.getElementById('countUpcoming').textContent = upcoming.length;
     document.getElementById('countPast').textContent = past.length;
 
     var fg = document.getElementById('featuredGrid');
     if (upcoming.length === 0) {
-      fg.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><h3 style="font-family:'Playfair Display',serif;color:var(--purple-deep);">No upcoming events yet</h3></div>';
+      fg.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><h3 style="font-family:\'Playfair Display\',serif;color:var(--purple-deep);">No upcoming events yet</h3></div>';
     } else {
       fg.style.gridTemplateColumns = upcoming.length >= 2 ? '2fr 1fr' : '1fr';
       var html = makeCard(upcoming[0], true);
@@ -244,7 +262,7 @@
 
     var pg = document.getElementById('pastGrid');
     pg.innerHTML = past.length === 0
-      ? '<div class="empty-state" style="grid-column:1/-1;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(168,85,200,0.3)" stroke-width="1.5" style="margin:0 auto 1rem;display:block;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><h3 style="font-family:'Playfair Display',serif;color:var(--purple-deep);font-size:1.4rem;margin-bottom:0.5rem;">No past events yet</h3><p>Past events will appear here once the year gets going.</p></div>'
+      ? '<div class="empty-state" style="grid-column:1/-1;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(168,85,200,0.3)" stroke-width="1.5" style="margin:0 auto 1rem;display:block;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><h3 style="font-family:\'Playfair Display\',serif;color:var(--purple-deep);font-size:1.4rem;margin-bottom:0.5rem;">No past events yet</h3><p>Past events will appear here once the year gets going.</p></div>'
       : past.map(function(e){ return makeCard(e, false); }).join('');
   }
 

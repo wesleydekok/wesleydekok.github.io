@@ -309,7 +309,7 @@
       </div>
       <div class="field">
         <label>Date</label>
-        <input type="text" id="ev-date" placeholder="e.g. 15 March 2026">
+        <input type="date" id="ev-date">
       </div>
     </div>
     <div class="field" style="margin-bottom:0.9rem;">
@@ -369,11 +369,35 @@
 </div>
 
 <!-- Member modal -->
+<datalist id="role-suggestions">
+  <option value="Voorzitter">
+  <option value="Secretaris">
+  <option value="Penningmeester">
+  <option value="Commissaris">
+  <option value="Algemeen lid">
+  <option value="President">
+  <option value="Secretary">
+  <option value="Treasurer">
+  <option value="General Member">
+</datalist>
 <div class="modal-overlay" id="memberModal">
   <div class="modal" style="max-width:480px;">
     <div class="modal-header">
       <h3 class="modal-title" id="memberModalTitle">New board member</h3>
       <button class="modal-close" onclick="closeModal('memberModal')">×</button>
+    </div>
+    <!-- Photo upload -->
+    <div class="field" style="margin-bottom:1rem;">
+      <label>Profile photo</label>
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <img id="mb-photo-preview" src="" alt="" style="width:72px;height:72px;border-radius:50%;object-fit:cover;background:#e8d5f5;display:none;border:2px solid var(--purple-pale);">
+        <div id="mb-photo-placeholder" style="width:72px;height:72px;border-radius:50%;background:rgba(91,45,142,0.12);display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;">👤</div>
+        <div>
+          <input type="file" id="mb-photo-file" accept="image/*" onchange="previewPhoto(this)" style="display:none;">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('mb-photo-file').click()">Choose photo</button>
+          <div id="mb-photo-name" style="font-size:0.78rem;color:#9a8aaa;margin-top:0.3rem;"></div>
+        </div>
+      </div>
     </div>
     <div class="form-grid">
       <div class="field">
@@ -382,12 +406,7 @@
       </div>
       <div class="field">
         <label>Role</label>
-        <select id="mb-role">
-          <option value="President">Voorzitter (President)</option>
-          <option value="Secretary">Secretaris (Secretary)</option>
-          <option value="Treasurer">Penningmeester (Treasurer)</option>
-          <option value="General Member">Algemeen lid (General Member)</option>
-        </select>
+        <input type="text" id="mb-role" list="role-suggestions" placeholder="e.g. Voorzitter">
       </div>
     </div>
     <div class="form-grid" style="margin-top:0.9rem;">
@@ -406,7 +425,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('memberModal')">Cancel</button>
-      <button class="btn btn-purple" onclick="saveMember()" style="min-width:120px;">Save member</button>
+      <button class="btn btn-purple" id="saveMemberBtn" onclick="saveMember()" style="min-width:120px;">Save member</button>
     </div>
   </div>
 </div>
@@ -446,6 +465,7 @@ var activities = [], actSha = '';
 var members = [], memberSha = '';
 var editEvIdx = -1, editMbIdx = -1;
 var dirty = false;
+var selectedPhotoFile = null;
 
 /* -------- PASSWORD -------- */
 async function sha256(str) {
@@ -654,13 +674,56 @@ function deleteEvent(idx) {
   markDirty();
 }
 
+/* -------- PHOTO UPLOAD -------- */
+function previewPhoto(input) {
+  selectedPhotoFile = input.files[0] || null;
+  var preview = document.getElementById('mb-photo-preview');
+  var placeholder = document.getElementById('mb-photo-placeholder');
+  var label = document.getElementById('mb-photo-name');
+  if (selectedPhotoFile) {
+    label.textContent = selectedPhotoFile.name;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+      placeholder.style.display = 'none';
+    };
+    reader.readAsDataURL(selectedPhotoFile);
+  } else {
+    preview.style.display = 'none';
+    placeholder.style.display = 'flex';
+    label.textContent = '';
+  }
+}
+
+async function ghUploadPhoto(file, memberName) {
+  var slug = memberName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  var ext = file.name.split('.').pop().toLowerCase() || 'jpg';
+  var path = 'uploads/bestuur/' + slug + '-' + Date.now() + '.' + ext;
+  var arrayBuf = await file.arrayBuffer();
+  var bytes = new Uint8Array(arrayBuf);
+  var binary = '';
+  bytes.forEach(function(b) { binary += String.fromCharCode(b); });
+  var b64 = btoa(binary);
+  var r = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + path, {
+    method: 'PUT',
+    headers: { Authorization: 'token ' + getToken(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: 'Upload photo for ' + memberName, content: b64, branch: BRANCH })
+  });
+  if (!r.ok) { var e = await r.json(); throw new Error(e.message || 'Photo upload failed.'); }
+  return 'https://raw.githubusercontent.com/' + REPO + '/' + BRANCH + '/' + path;
+}
+
 /* -------- MEMBERS -------- */
 function renderMembers() {
   var el = document.getElementById('memberList');
   if (!members.length) { el.innerHTML = '<p class="empty-msg">No members yet. Click "+ New member" to add one.</p>'; return; }
   el.innerHTML = members.map(function(m, i) {
+    var avatar = m.photo
+      ? '<img src="'+m.photo+'" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;">'
+      : '<span class="row-icon">👤</span>';
     return '<div class="data-row">' +
-      '<span class="row-icon">👤</span>' +
+      avatar +
       '<div class="row-info">' +
         '<div class="row-title">'+(m.name||'Unnamed')+'</div>' +
         '<div class="row-meta">'+(m.role||'')+(m.year?' · '+m.year:'')+'</div>' +
@@ -676,27 +739,56 @@ function renderMembers() {
 function openMemberModal(idx) {
   editMbIdx = idx !== undefined ? idx : -1;
   var m = editMbIdx >= 0 ? members[editMbIdx] : {};
+  selectedPhotoFile = null;
   document.getElementById('memberModalTitle').textContent = editMbIdx >= 0 ? 'Edit member' : 'New board member';
-  document.getElementById('mb-name').value    = m.name     || '';
-  document.getElementById('mb-role').value    = m.role     || 'General Member';
-  document.getElementById('mb-year').value    = m.year     || '2025-2026';
+  document.getElementById('mb-name').value     = m.name     || '';
+  document.getElementById('mb-role').value     = m.role     || '';
+  document.getElementById('mb-year').value     = m.year     || '2025-2026';
   document.getElementById('mb-linkedin').value = m.linkedin || '';
+  document.getElementById('mb-photo-file').value = '';
+  document.getElementById('mb-photo-name').textContent = '';
+  var preview = document.getElementById('mb-photo-preview');
+  var placeholder = document.getElementById('mb-photo-placeholder');
+  if (m.photo) {
+    preview.src = m.photo;
+    preview.style.display = 'block';
+    placeholder.style.display = 'none';
+  } else {
+    preview.src = '';
+    preview.style.display = 'none';
+    placeholder.style.display = 'flex';
+  }
   openModal('memberModal');
 }
 
-function saveMember() {
+async function saveMember() {
   var name = document.getElementById('mb-name').value.trim();
   if (!name) { alert('Name is required.'); return; }
-  var m = {
-    name:     name,
-    role:     document.getElementById('mb-role').value,
-    year:     document.getElementById('mb-year').value,
-    linkedin: document.getElementById('mb-linkedin').value.trim()
-  };
-  if (editMbIdx >= 0) members[editMbIdx] = m; else members.push(m);
-  closeModal('memberModal');
-  renderMembers();
-  markDirty();
+  var btn = document.getElementById('saveMemberBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    var existing = editMbIdx >= 0 ? members[editMbIdx] : {};
+    var photoUrl = existing.photo || '';
+    if (selectedPhotoFile) {
+      if (!getToken()) { alert('Add a GitHub token in Settings before uploading a photo.'); return; }
+      photoUrl = await ghUploadPhoto(selectedPhotoFile, name);
+    }
+    var m = {
+      name:     name,
+      role:     document.getElementById('mb-role').value.trim(),
+      year:     document.getElementById('mb-year').value,
+      linkedin: document.getElementById('mb-linkedin').value.trim(),
+      photo:    photoUrl
+    };
+    if (editMbIdx >= 0) members[editMbIdx] = m; else members.push(m);
+    closeModal('memberModal');
+    renderMembers();
+    markDirty();
+  } catch(e) {
+    alert('Photo upload failed: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save member';
+  }
 }
 
 function deleteMember(idx) {
