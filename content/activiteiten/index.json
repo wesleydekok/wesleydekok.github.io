@@ -3,13 +3,13 @@
     {
       "title": "poging 200",
       "desc": "ik vind dit leuk",
-      "date": "20/12/2026",
+      "date": "2027-06-20",
       "location": "utrecht",
+      "link": "",
       "status": "upcoming",
-      "tag": "Featured",
+      "tag": "Network",
       "color": "linear-gradient(135deg,#2D1B69,#5B2D8E)",
-      "emoji": "🎓",
-      "link": ""
+      "emoji": "🎓"
     },
     {
       "title": "etst",
