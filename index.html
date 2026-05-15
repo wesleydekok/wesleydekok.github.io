@@ -409,9 +409,20 @@
   }
 </script>
 <script>
-  // Load activities dynamically on homepage (shows first 4 upcoming)
+  // Load activities dynamically on homepage (shows first 4 upcoming, sorted by date)
+  function parseHomeDate(s) {
+    if (!s) return new Date(8640000000000000);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(s + 'T00:00:00');
+    var dmy = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if (dmy) return new Date(+dmy[3], +dmy[2]-1, +dmy[1]);
+    var p = new Date(s); return isNaN(p) ? new Date(8640000000000000) : p;
+  }
   function renderHomeActivities(events) {
-    var upcoming = events.filter(function(e){ return e.status === 'upcoming'; }).slice(0, 4);
+    var today = new Date(); today.setHours(0,0,0,0);
+    var upcoming = events
+      .filter(function(e){ return e.status !== 'past' && parseHomeDate(e.date) >= today; })
+      .sort(function(a,b){ return parseHomeDate(a.date) - parseHomeDate(b.date); })
+      .slice(0, 4);
     var grid = document.getElementById('homeActivitiesGrid');
     if (!grid) return;
     if (upcoming.length === 0) {

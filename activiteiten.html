@@ -257,9 +257,10 @@
     }
 
     var ug = document.getElementById('upcomingGrid');
-    ug.innerHTML = upcoming.length === 0
-      ? '<div class="empty-state" style="grid-column:1/-1;"><p>No upcoming events.</p></div>'
-      : upcoming.map(function(e){ return makeCard(e, false); }).join('');
+    var rest = upcoming.slice(upcoming.length >= 2 ? 2 : 1);
+    ug.innerHTML = rest.length === 0
+      ? '<div class="empty-state" style="grid-column:1/-1;"><p>No more upcoming events.</p></div>'
+      : rest.map(function(e){ return makeCard(e, false); }).join('');
 
     var pg = document.getElementById('pastGrid');
     pg.innerHTML = past.length === 0
