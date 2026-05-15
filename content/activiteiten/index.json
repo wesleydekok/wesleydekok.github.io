@@ -10,6 +10,17 @@
       "color": "linear-gradient(135deg,#2D1B69,#5B2D8E)",
       "emoji": "🎓",
       "link": ""
+    },
+    {
+      "title": "etst",
+      "desc": "testen",
+      "date": "10/10/2026",
+      "location": "hu",
+      "link": "",
+      "status": "upcoming",
+      "tag": "Social",
+      "color": "linear-gradient(135deg,#3D1F7A,#7B3FAF)",
+      "emoji": "🎓"
     }
   ]
 }
