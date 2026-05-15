@@ -170,16 +170,26 @@
       <span class="login-logo-text">IRIS</span>
     </div>
 
+    <!-- Loading state -->
+    <div id="authLoading" style="text-align:center;padding:1.2rem 0;color:#9a8aaa;font-size:0.9rem;">Checking authentication…</div>
+
     <!-- First-time setup -->
-    <div id="setupForm">
+    <div id="setupForm" style="display:none;">
       <h2 class="login-title">Set up admin</h2>
-      <p class="login-subtitle">No password set yet. Choose one to get started.</p>
+      <p class="login-subtitle">Create a password. A GitHub token is required to save it across all devices.</p>
       <div id="setupAlert"></div>
-      <label>New password</label>
+      <div id="setupTokenField">
+        <label>GitHub Token</label>
+        <input type="password" id="setupToken" placeholder="ghp_…">
+        <p style="font-size:0.78rem;color:#9a8aaa;margin-top:-0.6rem;margin-bottom:1rem;">
+          <a href="https://github.com/settings/tokens/new?scopes=repo&description=IRIS+Admin+Dashboard" target="_blank" style="color:var(--purple-light);">Create token →</a> Stored in this browser only.
+        </p>
+      </div>
+      <label>Password</label>
       <input type="password" id="setupPw" placeholder="Minimum 6 characters">
       <label>Confirm password</label>
       <input type="password" id="setupPwConfirm" placeholder="Repeat password" onkeydown="if(event.key==='Enter')setupPassword()">
-      <button class="btn btn-purple btn-full" onclick="setupPassword()">Create password →</button>
+      <button class="btn btn-purple btn-full" id="setupBtn" onclick="setupPassword()">Create password →</button>
     </div>
 
     <!-- Login -->
@@ -458,8 +468,12 @@
 <script>
 var REPO = 'wesleydekok/wesleydekok.github.io';
 var BRANCH = 'main';
-var ACT_PATH = 'content/activiteiten/index.json';
+var ACT_PATH  = 'content/activiteiten/index.json';
 var BOARD_PATH = 'content/bestuur/index.json';
+var AUTH_PATH  = 'admin/auth.json';
+
+var authSha = '';
+var remoteHash = '';
 
 var activities = [], actSha = '';
 var members = [], memberSha = '';
@@ -478,23 +492,73 @@ function setAlert(id, msg, type) {
   el.innerHTML = msg ? '<div class="alert alert-'+type+'">'+msg+'</div>' : '';
 }
 
+async function fetchRemoteHash() {
+  try {
+    var r = await fetch('https://raw.githubusercontent.com/' + REPO + '/' + BRANCH + '/' + AUTH_PATH + '?' + Date.now());
+    if (!r.ok) return null;
+    var data = await r.json();
+    return data.hash || null;
+  } catch(e) { return null; }
+}
+
+async function saveHashToGitHub(hash, tok) {
+  tok = tok || getToken();
+  if (!tok) throw new Error('No GitHub token. Cannot save password.');
+  var sha = authSha;
+  if (!sha) {
+    try {
+      var check = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + AUTH_PATH, {
+        headers: { Authorization: 'token ' + tok }
+      });
+      if (check.ok) { var d = await check.json(); sha = d.sha; authSha = sha; }
+    } catch(e) {}
+  }
+  var body = { message: 'Update admin auth', content: btoa(JSON.stringify({ hash: hash })), branch: BRANCH };
+  if (sha) body.sha = sha;
+  var resp = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + AUTH_PATH, {
+    method: 'PUT',
+    headers: { Authorization: 'token ' + tok, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!resp.ok) { var e = await resp.json(); throw new Error(e.message || 'Failed to save auth.'); }
+  authSha = (await resp.json()).content.sha;
+}
+
 async function setupPassword() {
   var pw = document.getElementById('setupPw').value;
   var pw2 = document.getElementById('setupPwConfirm').value;
   if (pw.length < 6) { setAlert('setupAlert','Password must be at least 6 characters.','error'); return; }
   if (pw !== pw2) { setAlert('setupAlert','Passwords do not match.','error'); return; }
-  localStorage.setItem('iris_admin_hash', await sha256(pw));
-  enterDashboard();
+  var tok = getToken();
+  var setupTok = document.getElementById('setupToken');
+  if (!tok && setupTok) tok = setupTok.value.trim();
+  if (!tok) { setAlert('setupAlert','A GitHub token is required to save the password across devices.','error'); return; }
+  var btn = document.getElementById('setupBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    var hash = await sha256(pw);
+    await saveHashToGitHub(hash, tok);
+    localStorage.setItem('iris_gh_token', tok);
+    localStorage.setItem('iris_admin_hash', hash);
+    remoteHash = hash;
+    enterDashboard();
+  } catch(e) {
+    setAlert('setupAlert', 'Could not save password: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Create password →';
+  }
 }
 
 async function doLogin() {
   var pw = document.getElementById('loginPw').value;
   if (!pw) { setAlert('loginAlert','Enter your password.','error'); return; }
   var hash = await sha256(pw);
-  if (hash !== localStorage.getItem('iris_admin_hash')) {
+  var check = remoteHash || localStorage.getItem('iris_admin_hash');
+  if (hash !== check) {
     setAlert('loginAlert','Wrong password.','error');
     return;
   }
+  localStorage.setItem('iris_admin_hash', hash);
   enterDashboard();
 }
 
@@ -515,10 +579,18 @@ async function changePassword() {
   var pw2 = document.getElementById('newPwConfirm').value;
   if (pw.length < 6) { setAlert('changePwAlert','At least 6 characters.','error'); return; }
   if (pw !== pw2) { setAlert('changePwAlert','Passwords do not match.','error'); return; }
-  localStorage.setItem('iris_admin_hash', await sha256(pw));
-  document.getElementById('newPw').value = '';
-  document.getElementById('newPwConfirm').value = '';
-  setAlert('changePwAlert','Password updated! Next login will use the new password.','success');
+  if (!getToken()) { setAlert('changePwAlert','A GitHub token is required to change the password. Add one in Settings.','error'); return; }
+  try {
+    var hash = await sha256(pw);
+    await saveHashToGitHub(hash);
+    localStorage.setItem('iris_admin_hash', hash);
+    remoteHash = hash;
+    document.getElementById('newPw').value = '';
+    document.getElementById('newPwConfirm').value = '';
+    setAlert('changePwAlert','Password updated on all devices!','success');
+  } catch(e) {
+    setAlert('changePwAlert', e.message, 'error');
+  }
 }
 
 /* -------- GITHUB TOKEN -------- */
@@ -830,17 +902,20 @@ document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
 });
 
 /* -------- BOOT -------- */
-(function boot() {
-  var hash = localStorage.getItem('iris_admin_hash');
+(async function boot() {
   if (sessionStorage.getItem('iris_ok')) {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
     loadAll();
     return;
   }
-  if (hash) {
-    document.getElementById('setupForm').style.display = 'none';
+  remoteHash = await fetchRemoteHash();
+  document.getElementById('authLoading').style.display = 'none';
+  if (remoteHash) {
     document.getElementById('loginForm').style.display = 'block';
+  } else {
+    document.getElementById('setupForm').style.display = 'block';
+    if (getToken()) document.getElementById('setupTokenField').style.display = 'none';
   }
 })();
 </script>
