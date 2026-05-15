@@ -21,6 +21,17 @@
       "tag": "Social",
       "color": "linear-gradient(135deg,#3D1F7A,#7B3FAF)",
       "emoji": "🎓"
+    },
+    {
+      "title": "verleden",
+      "desc": "",
+      "date": "2026-02-03",
+      "location": "",
+      "link": "",
+      "status": "upcoming",
+      "tag": "Featured",
+      "color": "linear-gradient(135deg,#2D1B69,#5B2D8E)",
+      "emoji": "🎓"
     }
   ]
 }
