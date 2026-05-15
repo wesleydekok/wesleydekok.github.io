@@ -237,8 +237,9 @@
   }
 
   function renderEvents(events) {
-    var upcoming = events.filter(function(e){ return e.status === 'upcoming'; });
-    var past = events.filter(function(e){ return e.status === 'past'; });
+    var today = new Date(); today.setHours(0,0,0,0);
+    var upcoming = events.filter(function(e){ return e.status !== 'past' && parseDate(e.date) >= today; });
+    var past     = events.filter(function(e){ return e.status === 'past'  || parseDate(e.date) < today; });
     upcoming.sort(function(a,b){ return parseDate(a.date) - parseDate(b.date); });
     past.sort(function(a,b){ return parseDate(b.date) - parseDate(a.date); });
 
