@@ -243,53 +243,10 @@
 
 <!-- BOARD -->
 <section class="board" id="board">
-  <p class="section-label">IRIS 2025/2026</p>
+  <p class="section-label" id="boardYearLabel">IRIS</p>
   <h2 class="section-title">The Board</h2>
   <p class="board-intro">Our board works throughout the year to make IRIS a success. View the full board composition and former boards on the board page.</p>
-  <div class="board-grid">
-    <div class="board-card">
-      <div class="board-avatar">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(232,213,245,0.4)" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
-      </div>
-      <div class="board-name">President</div>
-      <div class="board-role">President</div>
-    </div>
-    <div class="board-card">
-      <div class="board-avatar">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(232,213,245,0.4)" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
-      </div>
-      <div class="board-name">Secretaris</div>
-      <div class="board-role">Secretary</div>
-    </div>
-    <div class="board-card">
-      <div class="board-avatar">
-        <img src="logo.jpg" alt="Treasurer" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
-      </div>
-      <div class="board-name">Name treasurer</div>
-      <div class="board-role">Treasurer</div>
-    </div>
-    <div class="board-card">
-      <div class="board-avatar">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(232,213,245,0.4)" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
-      </div>
-      <div class="board-name">Activities</div>
-      <div class="board-role">Events Coordinator</div>
-    </div>
-    <div class="board-card">
-      <div class="board-avatar">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(232,213,245,0.4)" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
-      </div>
-      <div class="board-name">PR & Media</div>
-      <div class="board-role">Communications</div>
-    </div>
-    <div class="board-card">
-      <div class="board-avatar">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(232,213,245,0.4)" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
-      </div>
-      <div class="board-name">Name</div>
-      <div class="board-role">General Member</div>
-    </div>
-  </div>
+  <div class="board-grid" id="homeBoardGrid"></div>
   <div style="margin-top:2.5rem;">
     <a href="bestuur.html" class="btn-primary" style="display:inline-block;">View full board →</a>
   </div>
@@ -307,31 +264,13 @@
     <h2 class="section-title" style="color:var(--purple-deep);">Our sponsors</h2>
     <p style="color:#6a5a8a;font-size:1rem;max-width:500px;margin:0.8rem auto 0;line-height:1.7;font-weight:300;">IRIS is made possible by our amazing partners. Would you like to become a sponsor? Get in touch with us.</p>
   </div>
-  <div style="margin-bottom:3rem;">
+  <div id="mainSponsorsSection" style="margin-bottom:3rem;display:none;">
     <p style="text-align:center;font-size:0.7rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--purple-light);font-weight:500;margin-bottom:1.5rem;">Main sponsors</p>
-    <div style="display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;">
-      <div style="width:220px;height:110px;background:var(--cream);border-radius:4px;border:1px solid rgba(91,45,142,0.12);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.5rem;" onmouseover="this.style.boxShadow='0 8px 24px rgba(45,27,105,0.1)'" onmouseout="this.style.boxShadow='none'">
-        <div style="width:48px;height:48px;background:var(--purple-pale);border-radius:50%;display:flex;align-items:center;justify-content:center;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--purple-mid)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-        </div>
-        <span style="font-size:0.8rem;color:#6a5a8a;font-weight:500;">Sponsor name</span>
-      </div>
-      <div style="width:220px;height:110px;background:var(--cream);border-radius:4px;border:1px solid rgba(91,45,142,0.12);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.5rem;" onmouseover="this.style.boxShadow='0 8px 24px rgba(45,27,105,0.1)'" onmouseout="this.style.boxShadow='none'">
-        <div style="width:48px;height:48px;background:var(--purple-pale);border-radius:50%;display:flex;align-items:center;justify-content:center;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--purple-mid)" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
-        </div>
-        <span style="font-size:0.8rem;color:#6a5a8a;font-weight:500;">Sponsor name</span>
-      </div>
-    </div>
+    <div id="mainSponsorsGrid" style="display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;"></div>
   </div>
-  <div style="margin-bottom:3rem;">
+  <div id="partnerSponsorsSection" style="margin-bottom:3rem;display:none;">
     <p style="text-align:center;font-size:0.7rem;letter-spacing:0.3em;text-transform:uppercase;color:#9a8aaa;font-weight:500;margin-bottom:1.5rem;">Partners</p>
-    <div style="display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;">
-      <div style="width:160px;height:80px;background:var(--cream);border-radius:4px;border:1px solid rgba(91,45,142,0.08);display:flex;align-items:center;justify-content:center;"><span style="font-size:0.78rem;color:#9a8aaa;font-weight:500;">Partner name</span></div>
-      <div style="width:160px;height:80px;background:var(--cream);border-radius:4px;border:1px solid rgba(91,45,142,0.08);display:flex;align-items:center;justify-content:center;"><span style="font-size:0.78rem;color:#9a8aaa;font-weight:500;">Partner name</span></div>
-      <div style="width:160px;height:80px;background:var(--cream);border-radius:4px;border:1px solid rgba(91,45,142,0.08);display:flex;align-items:center;justify-content:center;"><span style="font-size:0.78rem;color:#9a8aaa;font-weight:500;">Partner name</span></div>
-      <div style="width:160px;height:80px;background:var(--cream);border-radius:4px;border:1px solid rgba(91,45,142,0.08);display:flex;align-items:center;justify-content:center;"><span style="font-size:0.78rem;color:#9a8aaa;font-weight:500;">Partner name</span></div>
-    </div>
+    <div id="partnerSponsorsGrid" style="display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;"></div>
   </div>
   <div style="text-align:center;margin-top:3rem;padding:2.5rem;background:linear-gradient(135deg,var(--purple-deep),var(--purple-main));border-radius:4px;max-width:600px;margin-left:auto;margin-right:auto;">
     <h3 style="font-family:'Playfair Display',serif;font-size:1.5rem;color:white;margin-bottom:0.8rem;">Become a sponsor of IRIS</h3>
@@ -453,6 +392,54 @@
       renderHomeActivities(items);
     })
     .catch(function(){ renderHomeActivities([]); });
+
+  function makeSponsorCard(s, large) {
+    var inner = s.logo
+      ? '<img src="'+s.logo+'" alt="'+s.name+'" style="max-width:'+(large?'160px':'110px')+';max-height:'+(large?'70px':'50px')+';object-fit:contain;">'
+      : '<span style="font-size:'+(large?'0.85':'0.78')+'rem;color:#6a5a8a;font-weight:500;text-align:center;padding:0 0.5rem;">'+s.name+'</span>';
+    var card = '<div style="width:'+(large?'220':'160')+'px;height:'+(large?'110':'80')+'px;background:var(--cream);border-radius:4px;border:1px solid rgba(91,45,142,'+(large?'0.12':'0.08')+');display:flex;align-items:center;justify-content:center;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow=\'0 8px 24px rgba(45,27,105,0.1)\'" onmouseout="this.style.boxShadow=\'none\'">'+inner+'</div>';
+    return s.url ? '<a href="'+s.url+'" target="_blank" style="text-decoration:none;">'+card+'</a>' : card;
+  }
+
+  var PERSON_SVG = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(232,213,245,0.4)" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>';
+
+  fetch('https://raw.githubusercontent.com/wesleydekok/wesleydekok.github.io/main/content/bestuur/index.json?' + Date.now())
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var items = Array.isArray(data) ? data : (data.items || []);
+      if (!items.length) return;
+      var years = items.map(function(m){ return m.year || ''; }).filter(Boolean);
+      var latestYear = years.sort().reverse()[0] || '';
+      var current = latestYear ? items.filter(function(m){ return m.year === latestYear; }) : items;
+      if (latestYear) document.getElementById('boardYearLabel').textContent = 'IRIS ' + latestYear;
+      var grid = document.getElementById('homeBoardGrid');
+      grid.style.gridTemplateColumns = 'repeat(' + Math.min(current.length, 6) + ', 1fr)';
+      grid.innerHTML = current.map(function(m) {
+        var avatar = m.photo
+          ? '<img src="'+m.photo+'" alt="'+m.name+'" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">'
+          : PERSON_SVG;
+        var card = '<div class="board-card"><div class="board-avatar">'+avatar+'</div><div class="board-name">'+m.name+'</div><div class="board-role">'+m.role+'</div></div>';
+        return m.linkedin ? '<a href="'+m.linkedin+'" target="_blank" style="text-decoration:none;color:inherit;">'+card+'</a>' : card;
+      }).join('');
+    })
+    .catch(function(){});
+
+  fetch('https://raw.githubusercontent.com/wesleydekok/wesleydekok.github.io/main/content/sponsors/index.json?' + Date.now())
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var items = Array.isArray(data) ? data : (data.items || []);
+      var main    = items.filter(function(s){ return s.type === 'main'; });
+      var partner = items.filter(function(s){ return s.type !== 'main'; });
+      if (main.length) {
+        document.getElementById('mainSponsorsGrid').innerHTML = main.map(function(s){ return makeSponsorCard(s, true); }).join('');
+        document.getElementById('mainSponsorsSection').style.display = 'block';
+      }
+      if (partner.length) {
+        document.getElementById('partnerSponsorsGrid').innerHTML = partner.map(function(s){ return makeSponsorCard(s, false); }).join('');
+        document.getElementById('partnerSponsorsSection').style.display = 'block';
+      }
+    })
+    .catch(function(){});
 </script>
 </body>
 </html>
