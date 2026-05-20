@@ -276,6 +276,19 @@
       <h2 style="font-family:'Playfair Display',serif;font-size:1.35rem;color:var(--purple-deep);margin-bottom:1.5rem;">Settings</h2>
 
       <div class="settings-card">
+        <h3>Current board year</h3>
+        <p>Select which year is shown as the active board on the website.</p>
+        <select id="currentBoardYear" style="max-width:220px;">
+          <option value="2027-II">2027 — II</option>
+          <option value="2027-I">2027 — I</option>
+          <option value="2026-II">2026 — II</option>
+          <option value="2026-I">2026 — I</option>
+        </select>
+        <div id="boardYearAlert" style="margin-top:0.6rem;"></div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:0.6rem;" onclick="saveBoardYearSetting()">Save</button>
+      </div>
+
+      <div class="settings-card">
         <h3>Change password</h3>
         <p>Update your admin login password. You will need to log in again after changing it.</p>
         <label>New password</label>
@@ -435,9 +448,10 @@
       <div class="field">
         <label>Academic year</label>
         <select id="mb-year">
-          <option value="2025-2026">2025–2026</option>
-          <option value="2024-2025">2024–2025</option>
-          <option value="2023-2024">2023–2024</option>
+          <option value="2027-II">2027 — II</option>
+          <option value="2027-I">2027 — I</option>
+          <option value="2026-II">2026 — II</option>
+          <option value="2026-I">2026 — I</option>
         </select>
       </div>
       <div class="field">
@@ -523,13 +537,15 @@
 <script>
 var REPO = 'wesleydekok/wesleydekok.github.io';
 var BRANCH = 'main';
-var ACT_PATH     = 'content/activiteiten/index.json';
-var BOARD_PATH   = 'content/bestuur/index.json';
-var SPONSOR_PATH = 'content/sponsors/index.json';
-var AUTH_PATH    = 'admin/auth.json';
+var ACT_PATH      = 'content/activiteiten/index.json';
+var BOARD_PATH    = 'content/bestuur/index.json';
+var SPONSOR_PATH  = 'content/sponsors/index.json';
+var SETTINGS_PATH = 'content/settings.json';
+var AUTH_PATH     = 'admin/auth.json';
 
 var authSha = '';
 var remoteHash = '';
+var settingsSha = '';
 
 var activities = [], actSha = '';
 var members = [], memberSha = '';
@@ -721,9 +737,10 @@ async function ghPut(path, content, sha, message) {
 /* -------- LOAD -------- */
 async function loadAll() {
   updateTokenUI();
-  try { var a = await ghGet(ACT_PATH);     activities = a.content.items || []; actSha = a.sha; } catch(e) { activities = []; }
-  try { var b = await ghGet(BOARD_PATH);   members    = b.content.items || []; memberSha = b.sha; } catch(e) { members = []; }
-  try { var s = await ghGet(SPONSOR_PATH); sponsors   = s.content.items || (Array.isArray(s.content) ? s.content : []); sponsorSha = s.sha; } catch(e) { sponsors = []; }
+  try { var a = await ghGet(ACT_PATH);      activities = a.content.items || []; actSha = a.sha; } catch(e) { activities = []; }
+  try { var b = await ghGet(BOARD_PATH);    members    = b.content.items || []; memberSha = b.sha; } catch(e) { members = []; }
+  try { var s = await ghGet(SPONSOR_PATH);  sponsors   = s.content.items || (Array.isArray(s.content) ? s.content : []); sponsorSha = s.sha; } catch(e) { sponsors = []; }
+  try { var cfg = await ghGet(SETTINGS_PATH); settingsSha = cfg.sha; var yr = cfg.content.currentBoardYear; if (yr) document.getElementById('currentBoardYear').value = yr; } catch(e) {}
   renderEvents();
   renderMembers();
   renderSponsors();
@@ -875,7 +892,7 @@ function openMemberModal(idx) {
   document.getElementById('memberModalTitle').textContent = editMbIdx >= 0 ? 'Edit member' : 'New board member';
   document.getElementById('mb-name').value     = m.name     || '';
   document.getElementById('mb-role').value     = m.role     || '';
-  document.getElementById('mb-year').value     = m.year     || '2025-2026';
+  document.getElementById('mb-year').value     = m.year     || '2027-II';
   document.getElementById('mb-linkedin').value = m.linkedin || '';
   document.getElementById('mb-photo-file').value = '';
   document.getElementById('mb-photo-name').textContent = '';
@@ -1050,6 +1067,31 @@ async function deleteSponsor(idx) {
   renderSponsors();
   markDirty();
   if (s.logo) ghDeleteFile(s.logo);
+}
+
+/* -------- SETTINGS -------- */
+async function saveBoardYearSetting() {
+  if (!getToken()) { setAlert('boardYearAlert','GitHub token required.','error'); return; }
+  var yr = document.getElementById('currentBoardYear').value;
+  var btn = event.target;
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    var sha = settingsSha;
+    if (!sha) {
+      try { var chk = await fetch('https://api.github.com/repos/'+REPO+'/contents/'+SETTINGS_PATH,{headers:{Authorization:'token '+getToken()}}); if (chk.ok){ var d=await chk.json(); sha=d.sha; settingsSha=sha; } } catch(e){}
+    }
+    var body = { message:'Update settings', content: btoa(JSON.stringify({currentBoardYear:yr},null,2)), branch:BRANCH };
+    if (sha) body.sha = sha;
+    var r = await fetch('https://api.github.com/repos/'+REPO+'/contents/'+SETTINGS_PATH,{method:'PUT',headers:{Authorization:'token '+getToken(),'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if (!r.ok){ var e=await r.json(); throw new Error(e.message); }
+    settingsSha = (await r.json()).content.sha;
+    setAlert('boardYearAlert','Saved! Board page will update shortly.','success');
+    setTimeout(function(){ setAlert('boardYearAlert','',''); }, 4000);
+  } catch(e) {
+    setAlert('boardYearAlert', e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save';
+  }
 }
 
 /* -------- SAVE -------- */

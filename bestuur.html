@@ -113,7 +113,7 @@
 <!-- HUIDIG BESTUUR -->
 <div class="board-section active" id="tab-huidig">
   <div class="section-intro">
-    <p class="section-label">2025 — 2026</p>
+    <p class="section-label">2027 — II</p>
     <h2 class="section-title">Current board</h2>
     <p class="section-desc">Our board works throughout the year to make IRIS a success. Do you have questions or would you like to get in touch? Our team is here for you.</p>
   </div>
@@ -136,27 +136,7 @@
     <h2 class="section-title">Former boards</h2>
     <p class="section-desc">An overview of all former boards that helped make IRIS great.</p>
   </div>
-
-  <!-- JAAR 2024–2025 -->
-  <div class="year-group">
-    <div class="year-header">
-      <span class="year-badge">2024 — 2025</span>
-      <div class="year-line"></div>
-    </div>
-    <div class="alumni-grid" id="alumni2425"><div style="grid-column:1/-1;text-align:center;color:#9a8aaa;">Loading...</div></div>
-  </div>
-
-  <!-- JAAR 2023–2024 -->
-  <div class="year-group">
-    <div class="year-header">
-      <span class="year-badge">2023 — 2024</span>
-      <div class="year-line"></div>
-    </div>
-    <div class="alumni-grid" id="alumni2324"><div style="grid-column:1/-1;text-align:center;color:#9a8aaa;">Loading...</div></div>
-  </div>
-
-  <!-- Voeg hier extra jaargroepen toe door het blok hierboven te kopiëren -->
-
+  <div id="formerBoardsContainer"></div>
 </div>
 
 <!-- CONTACT / FOOTER -->
@@ -265,25 +245,39 @@
     '</div>';
   }
 
-  loadContentFolder('content/bestuur').then(function(members) {
-    var current = members.filter(function(m){ return m.year === '2025-2026'; });
-    var y2425   = members.filter(function(m){ return m.year === '2024-2025'; });
-    var y2324   = members.filter(function(m){ return m.year === '2023-2024'; });
+  var allYears = ['2027-II','2027-I','2026-II','2026-I'];
+
+  Promise.all([
+    loadContentFolder('content/bestuur'),
+    fetch('https://raw.githubusercontent.com/wesleydekok/wesleydekok.github.io/main/content/settings.json?' + Date.now())
+      .then(function(r){ return r.ok ? r.json() : {}; }).catch(function(){ return {}; })
+  ]).then(function(results) {
+    var members = results[0];
+    var settings = results[1];
+    var currentYear = settings.currentBoardYear || allYears[0];
+    var current = members.filter(function(m){ return m.year === currentYear; });
+
+    document.querySelector('#tab-huidig .section-label').textContent = currentYear.replace('-', ' — ');
 
     var cg = document.getElementById('currentBoardGrid');
     if (cg) cg.innerHTML = current.length
       ? current.map(makeBoardCard).join('')
       : '<div style="grid-column:1/-1;text-align:center;color:#9a8aaa;padding:2rem;">Nog geen bestuursleden toegevoegd.</div>';
 
-    var g2425 = document.getElementById('alumni2425');
-    if (g2425) g2425.innerHTML = y2425.length
-      ? y2425.map(makeAlumniCard).join('')
-      : '<p style="color:#9a8aaa;font-size:0.85rem;">Nog geen leden.</p>';
-
-    var g2324 = document.getElementById('alumni2324');
-    if (g2324) g2324.innerHTML = y2324.length
-      ? y2324.map(makeAlumniCard).join('')
-      : '<p style="color:#9a8aaa;font-size:0.85rem;">Nog geen leden.</p>';
+    var formerYears = allYears.filter(function(yr){ return yr !== currentYear; });
+    var oudContainer = document.getElementById('formerBoardsContainer');
+    if (oudContainer) {
+      var html = '';
+      formerYears.forEach(function(yr) {
+        var group = members.filter(function(m){ return m.year === yr; });
+        if (!group.length) return;
+        html += '<div class="year-group">' +
+          '<div class="year-header"><span class="year-badge">' + yr.replace('-', ' — ') + '</span><div class="year-line"></div></div>' +
+          '<div class="alumni-grid">' + group.map(makeAlumniCard).join('') + '</div>' +
+        '</div>';
+      });
+      oudContainer.innerHTML = html || '<p style="color:#9a8aaa;">Nog geen voormalige besturen.</p>';
+    }
   });
 </script>
 </body>
