@@ -234,6 +234,7 @@
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('activities',this)">📅 Activities</button>
       <button class="tab-btn" onclick="switchTab('board',this)">👥 Board</button>
+      <button class="tab-btn" onclick="switchTab('sponsors',this)">🏢 Sponsors</button>
       <button class="tab-btn" onclick="switchTab('settings',this)">⚙️ Settings</button>
     </div>
 
@@ -255,6 +256,17 @@
         <button class="btn btn-purple btn-sm" onclick="openMemberModal()">+ New member</button>
       </div>
       <div id="memberList" class="row-list">
+        <p class="empty-msg">Loading…</p>
+      </div>
+    </div>
+
+    <!-- SPONSORS -->
+    <div class="tab-panel" id="tab-sponsors">
+      <div class="panel-header">
+        <h2>Sponsors</h2>
+        <button class="btn btn-purple btn-sm" onclick="openSponsorModal()">+ New sponsor</button>
+      </div>
+      <div id="sponsorList" class="row-list">
         <p class="empty-msg">Loading…</p>
       </div>
     </div>
@@ -440,6 +452,49 @@
   </div>
 </div>
 
+<!-- Sponsor modal -->
+<div class="modal-overlay" id="sponsorModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <h3 class="modal-title" id="sponsorModalTitle">New sponsor</h3>
+      <button class="modal-close" onclick="closeModal('sponsorModal')">×</button>
+    </div>
+    <div class="field" style="margin-bottom:1rem;">
+      <label>Logo</label>
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <img id="sp-logo-preview" src="" alt="" style="width:72px;height:72px;border-radius:4px;object-fit:contain;background:#e8d5f5;padding:4px;display:none;border:2px solid var(--purple-pale);flex-shrink:0;">
+        <div id="sp-logo-placeholder" style="width:72px;height:72px;border-radius:4px;background:rgba(91,45,142,0.12);display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;">🏢</div>
+        <div>
+          <input type="file" id="sp-logo-file" accept="image/*" onchange="previewSponsorLogo(this)" style="display:none;">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('sp-logo-file').click()">Choose logo</button>
+          <div id="sp-logo-name" style="font-size:0.78rem;color:#9a8aaa;margin-top:0.3rem;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Name *</label>
+        <input type="text" id="sp-name" placeholder="Sponsor name">
+      </div>
+      <div class="field">
+        <label>Type</label>
+        <select id="sp-type">
+          <option value="main">Hoofdsponsor (Main)</option>
+          <option value="partner">Partner</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" style="margin-top:0.9rem;">
+      <label>Website URL</label>
+      <input type="text" id="sp-url" placeholder="https://…">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('sponsorModal')">Cancel</button>
+      <button class="btn btn-purple" id="saveSponsorBtn" onclick="saveSponsor()" style="min-width:120px;">Save sponsor</button>
+    </div>
+  </div>
+</div>
+
 <!-- Token modal -->
 <div class="modal-overlay" id="tokenModal">
   <div class="modal" style="max-width:440px;">
@@ -468,18 +523,21 @@
 <script>
 var REPO = 'wesleydekok/wesleydekok.github.io';
 var BRANCH = 'main';
-var ACT_PATH  = 'content/activiteiten/index.json';
-var BOARD_PATH = 'content/bestuur/index.json';
-var AUTH_PATH  = 'admin/auth.json';
+var ACT_PATH     = 'content/activiteiten/index.json';
+var BOARD_PATH   = 'content/bestuur/index.json';
+var SPONSOR_PATH = 'content/sponsors/index.json';
+var AUTH_PATH    = 'admin/auth.json';
 
 var authSha = '';
 var remoteHash = '';
 
 var activities = [], actSha = '';
 var members = [], memberSha = '';
-var editEvIdx = -1, editMbIdx = -1;
+var sponsors = [], sponsorSha = '';
+var editEvIdx = -1, editMbIdx = -1, editSpIdx = -1;
 var dirty = false;
 var selectedPhotoFile = null;
+var selectedSponsorLogoFile = null;
 
 /* -------- PASSWORD -------- */
 async function sha256(str) {
@@ -663,10 +721,12 @@ async function ghPut(path, content, sha, message) {
 /* -------- LOAD -------- */
 async function loadAll() {
   updateTokenUI();
-  try { var a = await ghGet(ACT_PATH);  activities = a.content.items || []; actSha = a.sha; } catch(e) { activities = []; }
-  try { var b = await ghGet(BOARD_PATH); members   = b.content.items || []; memberSha = b.sha; } catch(e) { members = []; }
+  try { var a = await ghGet(ACT_PATH);     activities = a.content.items || []; actSha = a.sha; } catch(e) { activities = []; }
+  try { var b = await ghGet(BOARD_PATH);   members    = b.content.items || []; memberSha = b.sha; } catch(e) { members = []; }
+  try { var s = await ghGet(SPONSOR_PATH); sponsors   = s.content.items || (Array.isArray(s.content) ? s.content : []); sponsorSha = s.sha; } catch(e) { sponsors = []; }
   renderEvents();
   renderMembers();
+  renderSponsors();
 }
 
 /* -------- TABS -------- */
@@ -870,6 +930,105 @@ function deleteMember(idx) {
   markDirty();
 }
 
+/* -------- SPONSORS -------- */
+function previewSponsorLogo(input) {
+  selectedSponsorLogoFile = input.files[0] || null;
+  var preview = document.getElementById('sp-logo-preview');
+  var placeholder = document.getElementById('sp-logo-placeholder');
+  var label = document.getElementById('sp-logo-name');
+  if (selectedSponsorLogoFile) {
+    label.textContent = selectedSponsorLogoFile.name;
+    var reader = new FileReader();
+    reader.onload = function(e) { preview.src = e.target.result; preview.style.display = 'block'; placeholder.style.display = 'none'; };
+    reader.readAsDataURL(selectedSponsorLogoFile);
+  } else {
+    preview.style.display = 'none'; placeholder.style.display = 'flex'; label.textContent = '';
+  }
+}
+
+async function ghUploadSponsorLogo(file, sponsorName) {
+  var slug = sponsorName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  var ext = file.name.split('.').pop().toLowerCase() || 'png';
+  var path = 'uploads/sponsors/' + slug + '-' + Date.now() + '.' + ext;
+  var arrayBuf = await file.arrayBuffer();
+  var bytes = new Uint8Array(arrayBuf);
+  var binary = ''; bytes.forEach(function(b) { binary += String.fromCharCode(b); });
+  var r = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + path, {
+    method: 'PUT',
+    headers: { Authorization: 'token ' + getToken(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: 'Upload logo for ' + sponsorName, content: btoa(binary), branch: BRANCH })
+  });
+  if (!r.ok) { var e = await r.json(); throw new Error(e.message || 'Logo upload failed.'); }
+  return 'https://raw.githubusercontent.com/' + REPO + '/' + BRANCH + '/' + path;
+}
+
+function renderSponsors() {
+  var el = document.getElementById('sponsorList');
+  if (!sponsors.length) { el.innerHTML = '<p class="empty-msg">No sponsors yet. Click "+ New sponsor" to add one.</p>'; return; }
+  el.innerHTML = sponsors.map(function(s, i) {
+    var logo = s.logo
+      ? '<img src="'+s.logo+'" alt="" style="width:40px;height:40px;border-radius:4px;object-fit:contain;background:#f5f0ff;padding:3px;flex-shrink:0;">'
+      : '<span class="row-icon">🏢</span>';
+    return '<div class="data-row">' + logo +
+      '<div class="row-info">' +
+        '<div class="row-title">'+(s.name||'Unnamed')+'</div>' +
+        '<div class="row-meta">'+(s.type==='main'?'Hoofdsponsor':'Partner')+(s.url?' · '+s.url:'')+'</div>' +
+      '</div>' +
+      '<div class="row-actions">' +
+        '<button class="btn btn-ghost btn-sm" onclick="openSponsorModal('+i+')">Edit</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="deleteSponsor('+i+')">Delete</button>' +
+      '</div></div>';
+  }).join('');
+}
+
+function openSponsorModal(idx) {
+  editSpIdx = idx !== undefined ? idx : -1;
+  var s = editSpIdx >= 0 ? sponsors[editSpIdx] : {};
+  selectedSponsorLogoFile = null;
+  document.getElementById('sponsorModalTitle').textContent = editSpIdx >= 0 ? 'Edit sponsor' : 'New sponsor';
+  document.getElementById('sp-name').value = s.name || '';
+  document.getElementById('sp-type').value = s.type || 'main';
+  document.getElementById('sp-url').value  = s.url  || '';
+  document.getElementById('sp-logo-file').value = '';
+  document.getElementById('sp-logo-name').textContent = '';
+  var preview = document.getElementById('sp-logo-preview');
+  var placeholder = document.getElementById('sp-logo-placeholder');
+  if (s.logo) { preview.src = s.logo; preview.style.display = 'block'; placeholder.style.display = 'none'; }
+  else { preview.src = ''; preview.style.display = 'none'; placeholder.style.display = 'flex'; }
+  openModal('sponsorModal');
+}
+
+async function saveSponsor() {
+  var name = document.getElementById('sp-name').value.trim();
+  if (!name) { alert('Name is required.'); return; }
+  var btn = document.getElementById('saveSponsorBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    var existing = editSpIdx >= 0 ? sponsors[editSpIdx] : {};
+    var logoUrl = existing.logo || '';
+    if (selectedSponsorLogoFile) {
+      if (!getToken()) { alert('Add a GitHub token in Settings before uploading a logo.'); return; }
+      logoUrl = await ghUploadSponsorLogo(selectedSponsorLogoFile, name);
+    }
+    var s = { name: name, type: document.getElementById('sp-type').value, logo: logoUrl, url: document.getElementById('sp-url').value.trim() };
+    if (editSpIdx >= 0) sponsors[editSpIdx] = s; else sponsors.push(s);
+    closeModal('sponsorModal');
+    renderSponsors();
+    markDirty();
+  } catch(e) {
+    alert('Logo upload failed: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save sponsor';
+  }
+}
+
+function deleteSponsor(idx) {
+  if (!confirm('Remove "'+sponsors[idx].name+'"?')) return;
+  sponsors.splice(idx, 1);
+  renderSponsors();
+  markDirty();
+}
+
 /* -------- SAVE -------- */
 async function saveAll() {
   var btn = document.getElementById('saveBtn');
@@ -877,8 +1036,9 @@ async function saveAll() {
   btn.disabled = true; btn.textContent = 'Saving…';
   status.textContent = ''; status.className = '';
   try {
-    actSha    = await ghPut(ACT_PATH,   { items: activities }, actSha,    'Update activities via admin');
-    memberSha = await ghPut(BOARD_PATH, { items: members    }, memberSha, 'Update board via admin');
+    actSha    = await ghPut(ACT_PATH,     { items: activities }, actSha,    'Update activities via admin');
+    memberSha = await ghPut(BOARD_PATH,   { items: members    }, memberSha, 'Update board via admin');
+    sponsorSha = await ghPut(SPONSOR_PATH, { items: sponsors  }, sponsorSha, 'Update sponsors via admin');
     dirty = false;
     document.getElementById('saveBar').classList.remove('show');
     status.textContent = '✓ Published!'; status.className = 'ok';
