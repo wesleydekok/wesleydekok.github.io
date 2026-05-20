@@ -29,19 +29,14 @@
   .board-section.active { display: block; }
 
   /* BOARD GRID */
-  .board-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem; }
+  .board-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem; min-width: 0; }
   .board-card { text-align: center; }
-  .board-avatar {
-    width: 100%; aspect-ratio: 1; border-radius: 6px;
-    background: linear-gradient(135deg, rgba(91,45,142,0.15), rgba(45,27,105,0.08));
-    margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;
-    border: 1px solid rgba(168,85,200,0.2); overflow: hidden; position: relative;
-    transition: transform 0.3s, box-shadow 0.3s;
-  }
-  .board-card:hover .board-avatar { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(45,27,105,0.12); }
+  .board-avatar { width: 100%; aspect-ratio: 1; border-radius: 4px; background: rgba(91,45,142,0.5); margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; font-size: 2rem; border: 1px solid rgba(168,85,200,0.3); overflow: hidden; position: relative; transition: transform 0.3s, box-shadow 0.3s; }
+  .board-avatar::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(168,85,200,0.2), transparent); pointer-events: none; }
+  .board-card:hover .board-avatar { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(45,27,105,0.15); }
   .avatar-placeholder { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
   .board-name { font-family: 'Playfair Display', serif; font-size: 0.85rem; font-weight: 700; color: var(--purple-deep); margin-bottom: 0.2rem; }
-  .board-role { font-size: 0.68rem; color: var(--purple-light); letter-spacing: 0.03em; text-transform: uppercase; font-weight: 500; }
+  .board-role { font-size: 0.68rem; color: var(--purple-light); letter-spacing: 0.03em; }
 
   /* ALUMNI / FORMER BOARDS */
   .year-group { margin-bottom: 4rem; }
