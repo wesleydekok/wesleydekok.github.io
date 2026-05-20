@@ -923,11 +923,32 @@ async function saveMember() {
   }
 }
 
-function deleteMember(idx) {
-  if (!confirm('Remove "'+members[idx].name+'"?')) return;
+async function ghDeleteFile(url) {
+  if (!getToken() || !url) return;
+  var prefix = 'https://raw.githubusercontent.com/' + REPO + '/' + BRANCH + '/';
+  if (!url.startsWith(prefix)) return;
+  var path = url.slice(prefix.length);
+  try {
+    var r = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + path, {
+      headers: { Authorization: 'token ' + getToken() }
+    });
+    if (!r.ok) return;
+    var d = await r.json();
+    await fetch('https://api.github.com/repos/' + REPO + '/contents/' + path, {
+      method: 'DELETE',
+      headers: { Authorization: 'token ' + getToken(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Remove uploaded file', sha: d.sha, branch: BRANCH })
+    });
+  } catch(e) {}
+}
+
+async function deleteMember(idx) {
+  var m = members[idx];
+  if (!confirm('Remove "'+m.name+'"?')) return;
   members.splice(idx, 1);
   renderMembers();
   markDirty();
+  if (m.photo) ghDeleteFile(m.photo);
 }
 
 /* -------- SPONSORS -------- */
@@ -1022,11 +1043,13 @@ async function saveSponsor() {
   }
 }
 
-function deleteSponsor(idx) {
-  if (!confirm('Remove "'+sponsors[idx].name+'"?')) return;
+async function deleteSponsor(idx) {
+  var s = sponsors[idx];
+  if (!confirm('Remove "'+s.name+'"?')) return;
   sponsors.splice(idx, 1);
   renderSponsors();
   markDirty();
+  if (s.logo) ghDeleteFile(s.logo);
 }
 
 /* -------- SAVE -------- */

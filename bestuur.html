@@ -29,19 +29,20 @@
   .board-section.active { display: block; }
 
   /* BOARD GRID */
-  .board-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem; }
+  .board-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
   .board-card { text-align: center; }
   .board-avatar {
-    width: 100%; aspect-ratio: 1; border-radius: 6px;
+    width: 100%; aspect-ratio: 3/4; border-radius: 6px;
     background: linear-gradient(135deg, rgba(91,45,142,0.15), rgba(45,27,105,0.08));
     margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;
     border: 1px solid rgba(168,85,200,0.2); overflow: hidden; position: relative;
     transition: transform 0.3s, box-shadow 0.3s;
   }
-  .board-card:hover .board-avatar { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(45,27,105,0.12); }
+  .board-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .board-card:hover .board-avatar { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(45,27,105,0.15); }
   .avatar-placeholder { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
-  .board-name { font-family: 'Playfair Display', serif; font-size: 0.85rem; font-weight: 700; color: var(--purple-deep); margin-bottom: 0.2rem; }
-  .board-role { font-size: 0.68rem; color: var(--purple-light); letter-spacing: 0.03em; text-transform: uppercase; font-weight: 500; }
+  .board-name { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: var(--purple-deep); margin-bottom: 0.25rem; }
+  .board-role { font-size: 0.75rem; color: var(--purple-light); letter-spacing: 0.03em; text-transform: uppercase; font-weight: 500; }
 
   /* ALUMNI / FORMER BOARDS */
   .year-group { margin-bottom: 4rem; }
@@ -49,13 +50,13 @@
   .year-badge { background: var(--purple-deep); color: white; font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; padding: 0.4rem 1rem; border-radius: 2px; white-space: nowrap; }
   .year-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: var(--purple-deep); }
   .year-line { flex: 1; height: 1px; background: rgba(91,45,142,0.1); }
-  .alumni-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem; }
+  .alumni-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
   .alumni-card { text-align: center; }
-  .alumni-avatar { width: 100%; aspect-ratio: 1; border-radius: 6px; background: linear-gradient(135deg, rgba(91,45,142,0.08), rgba(45,27,105,0.04)); margin-bottom: 0.8rem; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(168,85,200,0.12); overflow: hidden; transition: transform 0.2s; }
+  .alumni-avatar { width: 100%; aspect-ratio: 3/4; border-radius: 6px; background: linear-gradient(135deg, rgba(91,45,142,0.08), rgba(45,27,105,0.04)); margin-bottom: 0.8rem; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(168,85,200,0.12); overflow: hidden; transition: transform 0.2s; }
   .alumni-card:hover .alumni-avatar { transform: translateY(-3px); }
-  .alumni-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .alumni-name { font-family: 'Playfair Display', serif; font-size: 0.9rem; font-weight: 700; color: var(--purple-deep); margin-bottom: 0.2rem; }
-  .alumni-role { font-size: 0.7rem; color: var(--purple-mid); letter-spacing: 0.05em; text-transform: uppercase; font-weight: 500; }
+  .alumni-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .alumni-name { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 700; color: var(--purple-deep); margin-bottom: 0.2rem; }
+  .alumni-role { font-size: 0.72rem; color: var(--purple-mid); letter-spacing: 0.05em; text-transform: uppercase; font-weight: 500; }
 
   /* CTA BLOCK */
   .cta-block { background: linear-gradient(135deg, var(--purple-deep), var(--purple-main)); border-radius: 4px; padding: 3rem 4rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; margin-top: 4rem; }
@@ -70,11 +71,12 @@
     .tabs { padding: 0 1.5rem; overflow-x: auto; }
     .board-section { padding: 3rem 1.5rem; }
     .board-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 1rem !important; }
-    .alumni-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 0.8rem !important; }
+    .alumni-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 1rem !important; }
     .cta-block { flex-direction: column; margin: 0 0 2rem; padding: 2rem 1.5rem; text-align: center; }
   }
   @media (max-width: 480px) {
     .board-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .alumni-grid { grid-template-columns: repeat(2, 1fr) !important; }
   }
 </style>
 </head>
