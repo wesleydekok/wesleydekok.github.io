@@ -245,7 +245,7 @@
     '</div>';
   }
 
-  var allYears = ['2027-II','2027-I','2026-II','2026-I'];
+  var allYears = ['2027-II','2027-I','2026-II','2026-I','2025-2026','2024-2025','2023-2024'];
 
   Promise.all([
     loadContentFolder('content/bestuur'),
@@ -254,9 +254,19 @@
   ]).then(function(results) {
     var members = results[0];
     var settings = results[1];
-    var currentYear = settings.currentBoardYear || allYears[0];
-    var current = members.filter(function(m){ return m.year === currentYear; });
+    var configuredYear = settings.currentBoardYear || allYears[0];
+    var current = members.filter(function(m){ return m.year === configuredYear; });
 
+    // fallback: if configured year has no members, use the most recent year that does
+    if (!current.length && members.length) {
+      var yearsInData = members.map(function(m){ return m.year; }).filter(Boolean);
+      var sorted = allYears.filter(function(y){ return yearsInData.indexOf(y) >= 0; });
+      if (!sorted.length) sorted = yearsInData;
+      configuredYear = sorted[0];
+      current = members.filter(function(m){ return m.year === configuredYear; });
+    }
+
+    var currentYear = configuredYear;
     document.querySelector('#tab-huidig .section-label').textContent = currentYear.replace('-', ' — ');
 
     var cg = document.getElementById('currentBoardGrid');
