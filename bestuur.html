@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -105,13 +105,13 @@
 <!-- TABS -->
 <div class="tabs-wrapper">
   <div class="tabs">
-    <button class="tab-btn active" onclick="showTab('huidig', this)">Current board</button>
-    <button class="tab-btn" onclick="showTab('oud', this)">Former boards</button>
+    <button class="tab-btn active" onclick="showTab('current', this)">Current board</button>
+    <button class="tab-btn" onclick="showTab('former', this)">Former boards</button>
   </div>
 </div>
 
-<!-- HUIDIG BESTUUR -->
-<div class="board-section active" id="tab-huidig">
+<!-- CURRENT BOARD -->
+<div class="board-section active" id="tab-current">
   <div class="section-intro">
     <p class="section-label">2027 — II</p>
     <h2 class="section-title">Current board</h2>
@@ -129,8 +129,8 @@
   </div>
 </div>
 
-<!-- OUD BESTUUR -->
-<div class="board-section" id="tab-oud">
+<!-- FORMER BOARDS -->
+<div class="board-section" id="tab-former">
   <div class="section-intro">
     <p class="section-label">Former boards</p>
     <h2 class="section-title">Former boards</h2>
@@ -208,6 +208,13 @@
   }
 </script>
 <script>
+  function escHtml(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function safeUrl(u) {
+    return /^https?:\/\//.test(u) ? u : '#';
+  }
+
   function showTab(name, btn) {
     document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
     document.querySelectorAll('.board-section').forEach(function(s){ s.classList.remove('active'); });
@@ -224,24 +231,24 @@
 
   function makeBoardCard(m) {
     var avatar = m.photo
-      ? '<img src="' + m.photo + '" alt="' + m.name + '" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">'
+      ? '<img src="' + escHtml(m.photo) + '" alt="' + escHtml(m.name) + '" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">'
       : '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="rgba(168,85,200,0.4)" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>';
     return '<div class="board-card">' +
       '<div class="board-avatar">' + avatar + '</div>' +
-      '<div class="board-name">' + (m.name || 'Name') + '</div>' +
-      '<div class="board-role">' + (m.role || '') + '</div>' +
-      (m.linkedin ? '<a href="' + m.linkedin + '" target="_blank" style="font-size:0.75rem;color:var(--purple-light);text-decoration:none;margin-top:0.3rem;display:block;">LinkedIn →</a>' : '') +
+      '<div class="board-name">' + escHtml(m.name || 'Name') + '</div>' +
+      '<div class="board-role">' + escHtml(m.role || '') + '</div>' +
+      (m.linkedin ? '<a href="' + safeUrl(m.linkedin) + '" target="_blank" style="font-size:0.75rem;color:var(--purple-light);text-decoration:none;margin-top:0.3rem;display:block;">LinkedIn →</a>' : '') +
     '</div>';
   }
 
   function makeAlumniCard(m) {
     var avatar = m.photo
-      ? '<img src="' + m.photo + '" alt="' + m.name + '">'
+      ? '<img src="' + escHtml(m.photo) + '" alt="' + escHtml(m.name) + '">'
       : '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(168,85,200,0.4)" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>';
     return '<div class="alumni-card">' +
       '<div class="alumni-avatar">' + avatar + '</div>' +
-      '<div class="alumni-name">' + (m.name || 'Name') + '</div>' +
-      '<div class="alumni-role">' + (m.role || '') + '</div>' +
+      '<div class="alumni-name">' + escHtml(m.name || 'Name') + '</div>' +
+      '<div class="alumni-role">' + escHtml(m.role || '') + '</div>' +
     '</div>';
   }
 
@@ -272,7 +279,7 @@
     var cg = document.getElementById('currentBoardGrid');
     if (cg) cg.innerHTML = current.length
       ? current.map(makeBoardCard).join('')
-      : '<div style="grid-column:1/-1;text-align:center;color:#9a8aaa;padding:2rem;">Nog geen bestuursleden toegevoegd.</div>';
+      : '<div style="grid-column:1/-1;text-align:center;color:#9a8aaa;padding:2rem;">No board members added yet.</div>';
 
     var formerYears = allYears.filter(function(yr){ return yr !== currentYear; });
     var oudContainer = document.getElementById('formerBoardsContainer');
@@ -286,7 +293,7 @@
           '<div class="alumni-grid">' + group.map(makeAlumniCard).join('') + '</div>' +
         '</div>';
       });
-      oudContainer.innerHTML = html || '<p style="color:#9a8aaa;">Nog geen voormalige besturen.</p>';
+      oudContainer.innerHTML = html || '<p style="color:#9a8aaa;">No former boards yet.</p>';
     }
   });
 </script>

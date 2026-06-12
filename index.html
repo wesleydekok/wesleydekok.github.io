@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -258,11 +258,11 @@
 </section>
 
 <!-- SPONSORS -->
-<section id="sponsors" style="background:var(--white);padding:6rem 4rem;">
-  <div style="text-align:center;margin-bottom:3.5rem;">
-    <p class="section-label" style="display:block;">Partners</p>
-    <h2 class="section-title" style="color:var(--purple-deep);">Our sponsors</h2>
-    <p style="color:#6a5a8a;font-size:1rem;max-width:500px;margin:0.8rem auto 0;line-height:1.7;font-weight:300;">IRIS is made possible by our amazing partners. Would you like to become a sponsor? Get in touch with us.</p>
+<section id="sponsors" class="sponsors">
+  <div class="sponsors-header">
+    <p class="section-label">Partners</p>
+    <h2 class="section-title">Our sponsors</h2>
+    <p>IRIS is made possible by our amazing partners. Would you like to become a sponsor? Get in touch with us.</p>
   </div>
   <div id="mainSponsorsSection" style="margin-bottom:3rem;display:none;">
     <p style="text-align:center;font-size:0.7rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--purple-light);font-weight:500;margin-bottom:1.5rem;">Main sponsors</p>
@@ -272,21 +272,21 @@
     <p style="text-align:center;font-size:0.7rem;letter-spacing:0.3em;text-transform:uppercase;color:#9a8aaa;font-weight:500;margin-bottom:1.5rem;">Partners</p>
     <div id="partnerSponsorsGrid" style="display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;"></div>
   </div>
-  <div style="text-align:center;margin-top:3rem;padding:2.5rem;background:linear-gradient(135deg,var(--purple-deep),var(--purple-main));border-radius:4px;max-width:600px;margin-left:auto;margin-right:auto;">
-    <h3 style="font-family:'Playfair Display',serif;font-size:1.5rem;color:white;margin-bottom:0.8rem;">Become a sponsor of IRIS</h3>
-    <p style="color:rgba(255,255,255,0.65);font-size:0.92rem;line-height:1.7;margin-bottom:1.5rem;font-weight:300;">Reach our community of students and teachers. Contact us for sponsorship opportunities.</p>
-    <a href="/cdn-cgi/l/email-protection#7d140f140e3d07080419531311" class="btn-primary" style="background:var(--purple-pale);color:var(--purple-deep);font-weight:600;">Get in touch</a>
+  <div class="sponsor-cta">
+    <h3>Become a sponsor of IRIS</h3>
+    <p>Reach our community of students and teachers. Contact us for sponsorship opportunities.</p>
+    <a href="/cdn-cgi/l/email-protection#7d140f140e3d07080419531311" class="btn-primary">Get in touch</a>
   </div>
 </section>
 
 <!-- JOIN -->
-<div style="background:var(--purple-deep);padding:6rem 4rem;text-align:center;position:relative;overflow:hidden;">
-  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(168,85,200,0.25) 0%,transparent 70%);"></div>
-  <div style="position:relative;z-index:2;max-width:600px;margin:0 auto;">
-    <p style="font-size:0.75rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--purple-light);font-weight:500;margin-bottom:0.8rem;">Membership</p>
-    <h2 style="font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3rem);font-weight:900;color:white;line-height:1.1;margin-bottom:1.2rem;">Become part of <em style="font-style:italic;color:var(--purple-pale);">IRIS</em></h2>
-    <p style="color:rgba(255,255,255,0.6);font-size:1rem;line-height:1.75;font-weight:300;margin-bottom:2.5rem;">Join our community and enjoy exclusive activities, study support and a network of students and teachers.</p>
-    <a href="https://forms.gle/3v6Go2TLc9qXmZ2S8" target="_blank" class="btn-primary" style="display:inline-block;font-size:1rem;padding:1rem 2.5rem;">Sign up now →</a>
+<div class="membership-cta">
+  <div class="membership-cta-glow"></div>
+  <div class="membership-cta-inner">
+    <p class="section-label">Membership</p>
+    <h2>Become part of <em>IRIS</em></h2>
+    <p>Join our community and enjoy exclusive activities, study support and a network of students and teachers.</p>
+    <a href="https://forms.gle/3v6Go2TLc9qXmZ2S8" target="_blank" class="btn-primary">Sign up now →</a>
   </div>
 </div>
 
@@ -304,8 +304,8 @@
     <ul class="footer-links">
       <li><a href="#about">About us</a></li>
       <li><a href="activiteiten.html">Activities</a></li>
-      <li><a href="bestuur.html">Bestuur</a></li>
-      <li><a href="#sponsors">Sponsoren</a></li>
+      <li><a href="bestuur.html">Board</a></li>
+      <li><a href="#sponsors">Sponsors</a></li>
       <li><a href="https://forms.gle/3v6Go2TLc9qXmZ2S8" target="_blank">Join us</a></li>
     </ul>
   </div>
@@ -321,6 +321,8 @@
       </div>
       <span class="footer-logo-text">IRIS</span>
     </div>
+  </div>
+</section>
 <script>
   var mobileBtn = document.querySelector('.nav-mobile-btn');
   var navLinks = document.querySelector('.nav-links');
@@ -349,6 +351,13 @@
   }
 </script>
 <script>
+  function escHtml(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function escCss(s) {
+    return String(s||'').replace(/[^a-zA-Z0-9#(),. %-]/g,'');
+  }
+
   // Load activities dynamically on homepage (shows first 4 upcoming, sorted by date)
   function parseHomeDate(s) {
     if (!s) return new Date(8640000000000000);
@@ -371,15 +380,15 @@
     }
     grid.innerHTML = upcoming.map(function(ev) {
       return '<div class="activity-card">' +
-        '<div class="activity-img" style="background:' + ev.color + ';">' +
-          '<span class="activity-emoji">' + ev.emoji + '</span>' +
+        '<div class="activity-img" style="background:' + escCss(ev.color) + ';">' +
+          '<span class="activity-emoji">' + escHtml(ev.emoji) + '</span>' +
           '<div class="activity-img-overlay"></div>' +
-          '<span class="activity-tag">' + ev.tag + '</span>' +
+          '<span class="activity-tag">' + escHtml(ev.tag) + '</span>' +
         '</div>' +
         '<div class="activity-body">' +
-          '<p class="activity-date">' + ev.date + '</p>' +
-          '<h3 class="activity-title">' + ev.title + '</h3>' +
-          '<p class="activity-desc">' + ev.desc + '</p>' +
+          '<p class="activity-date">' + escHtml(ev.date) + '</p>' +
+          '<h3 class="activity-title">' + escHtml(ev.title) + '</h3>' +
+          '<p class="activity-desc">' + escHtml(ev.desc) + '</p>' +
         '</div>' +
       '</div>';
     }).join('');

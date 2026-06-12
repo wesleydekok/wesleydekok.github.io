@@ -235,3 +235,48 @@ section { padding: 6rem 4rem; }
 input, select, textarea { -webkit-appearance: none; border-radius: 4px; }
 button { -webkit-appearance: none; }
 .board-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+/* 9. SPONSORS */
+.sponsors { background: var(--white); padding: 6rem 4rem; }
+.sponsors-header { text-align: center; margin-bottom: 3.5rem; }
+.sponsors-header p:not(.section-label) {
+  color: #6a5a8a; font-size: 1rem; max-width: 500px;
+  margin: 0.8rem auto 0; line-height: 1.7; font-weight: 300;
+}
+.sponsor-cta {
+  text-align: center; margin: 3rem auto 0; padding: 2.5rem;
+  background: linear-gradient(135deg, var(--purple-deep), var(--purple-main));
+  border-radius: 4px; max-width: 600px;
+}
+.sponsor-cta h3 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: white; margin-bottom: 0.8rem; }
+.sponsor-cta p { color: rgba(255,255,255,0.65); font-size: 0.92rem; line-height: 1.7; margin-bottom: 1.5rem; font-weight: 300; }
+.sponsor-cta .btn-primary { background: var(--purple-pale); color: var(--purple-deep); font-weight: 600; }
+.sponsor-cta .btn-primary:hover { background: var(--purple-light); color: white; }
+
+/* 10. MEMBERSHIP CTA */
+.membership-cta {
+  background: var(--purple-deep); padding: 6rem 4rem;
+  text-align: center; position: relative; overflow: hidden;
+}
+.membership-cta-glow {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(168,85,200,0.25) 0%, transparent 70%);
+}
+.membership-cta-inner { position: relative; z-index: 2; max-width: 600px; margin: 0 auto; }
+.membership-cta .section-label { color: var(--purple-light); }
+.membership-cta-inner h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 3rem); font-weight: 900;
+  color: white; line-height: 1.1; margin-bottom: 1.2rem;
+}
+.membership-cta-inner h2 em { font-style: italic; color: var(--purple-pale); }
+.membership-cta-inner p:not(.section-label) {
+  color: rgba(255,255,255,0.6); font-size: 1rem;
+  line-height: 1.75; font-weight: 300; margin-bottom: 2.5rem;
+}
+.membership-cta-inner .btn-primary { font-size: 1rem; padding: 1rem 2.5rem; }
+
+/* 11. FOOTER OVERRIDES */
+.footer .section-title { color: white; font-size: 2rem; }
+.footer .section-label { color: var(--purple-pale); }
+.footer .contact-info p { color: rgba(255,255,255,0.5); }
