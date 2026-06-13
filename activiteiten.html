@@ -193,27 +193,37 @@
     btn.classList.add('active');
   }
 
+  function escHtml(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function escCss(s) {
+    return String(s||'').replace(/[^a-zA-Z0-9#(),. %-]/g,'');
+  }
+  function safeUrl(u) {
+    return /^https?:\/\//.test(u) ? u : '#';
+  }
+
   var PIN_SVG = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
 
   function makeCard(ev, large) {
-    var link = ev.link ? ev.link : 'https://forms.gle/3v6Go2TLc9qXmZ2S8';
+    var link = ev.link ? safeUrl(ev.link) : 'https://forms.gle/3v6Go2TLc9qXmZ2S8';
     return '<div class="event-card' + (large ? ' large' : '') + (ev.status==='past' ? ' past' : '') + '">' +
-      '<div class="event-img" style="background:' + ev.color + (large ? ';' : ';height:180px;') + '">' +
-        '<span class="event-emoji">' + ev.emoji + '</span>' +
+      '<div class="event-img" style="background:' + escCss(ev.color) + (large ? ';' : ';height:180px;') + '">' +
+        '<span class="event-emoji">' + escHtml(ev.emoji) + '</span>' +
         '<div class="event-img-overlay"></div>' +
-        '<span class="event-tag">' + ev.tag + '</span>' +
+        '<span class="event-tag">' + escHtml(ev.tag) + '</span>' +
         '<span class="event-date-badge">' + formatDate(ev.date) + '</span>' +
       '</div>' +
       '<div class="event-body">' +
         '<div class="event-meta">' +
           '<span class="event-meta-item">📅 ' + formatDate(ev.date) + '</span>' +
-          (ev.location ? '<span class="event-meta-item">📍 ' + ev.location + '</span>' : '') +
+          (ev.location ? '<span class="event-meta-item">📍 ' + escHtml(ev.location) + '</span>' : '') +
         '</div>' +
-        '<h3 class="event-title">' + ev.title + '</h3>' +
-        '<p class="event-desc">' + ev.desc + '</p>' +
+        '<h3 class="event-title">' + escHtml(ev.title) + '</h3>' +
+        '<p class="event-desc">' + escHtml(ev.desc) + '</p>' +
       '</div>' +
       '<div class="event-footer">' +
-        '<span class="event-location">' + PIN_SVG + ' ' + (ev.location || 'TBA') + '</span>' +
+        '<span class="event-location">' + PIN_SVG + ' ' + escHtml(ev.location || 'TBA') + '</span>' +
         (ev.status === 'past'
           ? '<span class="btn-small outline" style="opacity:0.6;cursor:default;">Past event</span>'
           : '<a href="' + link + '" target="_blank" class="btn-small">Sign up →</a>') +
@@ -234,7 +244,7 @@
     if (!s) return '';
     var d = parseDate(s);
     if (d.getTime() >= new Date(8640000000000000).getTime()) return s;
-    return d.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' });
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   }
 
   function renderEvents(events) {
