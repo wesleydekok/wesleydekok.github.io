@@ -5,6 +5,12 @@
       "type": "main",
       "logo": "",
       "url": "ebrisvespertina.nl"
+    },
+    {
+      "name": "test",
+      "type": "main",
+      "logo": "",
+      "url": ""
     }
   ]
 }
