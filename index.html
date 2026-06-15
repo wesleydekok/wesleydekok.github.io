@@ -357,6 +357,9 @@
   function escCss(s) {
     return String(s||'').replace(/[^a-zA-Z0-9#(),. %-]/g,'');
   }
+  function safeUrl(u) {
+    return /^https?:\/\//.test(u) ? u : '#';
+  }
 
   // Load activities dynamically on homepage (shows first 4 upcoming, sorted by date)
   function parseHomeDate(s) {
@@ -412,26 +415,36 @@
 
   var PERSON_SVG = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(232,213,245,0.4)" stroke-width="1"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>';
 
-  fetch('https://raw.githubusercontent.com/wesleydekok/wesleydekok.github.io/main/content/bestuur/index.json?' + Date.now())
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      var items = Array.isArray(data) ? data : (data.items || []);
-      if (!items.length) return;
-      var years = items.map(function(m){ return m.year || ''; }).filter(Boolean);
-      var latestYear = years.sort().reverse()[0] || '';
-      var current = latestYear ? items.filter(function(m){ return m.year === latestYear; }) : items;
-      if (latestYear) document.getElementById('boardYearLabel').textContent = 'IRIS ' + latestYear;
-      var grid = document.getElementById('homeBoardGrid');
-      grid.style.gridTemplateColumns = 'repeat(' + Math.min(current.length, 6) + ', 1fr)';
-      grid.innerHTML = current.map(function(m) {
-        var avatar = m.photo
-          ? '<img src="'+m.photo+'" alt="'+m.name+'" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">'
-          : PERSON_SVG;
-        var card = '<div class="board-card"><div class="board-avatar">'+avatar+'</div><div class="board-name">'+m.name+'</div><div class="board-role">'+m.role+'</div></div>';
-        return m.linkedin ? '<a href="'+m.linkedin+'" target="_blank" style="text-decoration:none;color:inherit;">'+card+'</a>' : card;
-      }).join('');
-    })
-    .catch(function(){});
+  var ALL_YEARS = ['2027-II','2027-I','2026-II','2026-I','2025-2026','2024-2025','2023-2024'];
+
+  Promise.all([
+    fetch('https://raw.githubusercontent.com/wesleydekok/wesleydekok.github.io/main/content/bestuur/index.json?' + Date.now())
+      .then(function(r){ return r.json(); }).then(function(d){ return Array.isArray(d) ? d : (d.items || []); }).catch(function(){ return []; }),
+    fetch('https://raw.githubusercontent.com/wesleydekok/wesleydekok.github.io/main/content/settings.json?' + Date.now())
+      .then(function(r){ return r.ok ? r.json() : {}; }).catch(function(){ return {}; })
+  ]).then(function(results) {
+    var items = results[0];
+    var settings = results[1];
+    if (!items.length) return;
+    var configuredYear = settings.currentBoardYear || ALL_YEARS[0];
+    var current = items.filter(function(m){ return m.year === configuredYear; });
+    if (!current.length) {
+      var yearsInData = items.map(function(m){ return m.year; }).filter(Boolean);
+      var sorted = ALL_YEARS.filter(function(y){ return yearsInData.indexOf(y) >= 0; });
+      configuredYear = sorted.length ? sorted[0] : yearsInData[0];
+      current = items.filter(function(m){ return m.year === configuredYear; });
+    }
+    if (configuredYear) document.getElementById('boardYearLabel').textContent = 'IRIS ' + configuredYear;
+    var grid = document.getElementById('homeBoardGrid');
+    grid.style.gridTemplateColumns = 'repeat(' + Math.min(current.length, 6) + ', 1fr)';
+    grid.innerHTML = current.map(function(m) {
+      var avatar = m.photo
+        ? '<img src="'+escHtml(m.photo)+'" alt="'+escHtml(m.name)+'" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">'
+        : PERSON_SVG;
+      var card = '<div class="board-card"><div class="board-avatar">'+avatar+'</div><div class="board-name">'+escHtml(m.name)+'</div><div class="board-role">'+escHtml(m.role)+'</div></div>';
+      return m.linkedin ? '<a href="'+safeUrl(m.linkedin)+'" target="_blank" style="text-decoration:none;color:inherit;">'+card+'</a>' : card;
+    }).join('');
+  });
 
   fetch('https://raw.githubusercontent.com/wesleydekok/wesleydekok.github.io/main/content/sponsors/index.json?' + Date.now())
     .then(function(r){ return r.json(); })
