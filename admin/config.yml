@@ -107,6 +107,40 @@ collections:
               - { label: "Logo", name: "logo", widget: "image", required: false }
               - { label: "Website", name: "url", widget: "string", required: false }
 
+  - name: "commissies"
+    label: "Commissies"
+    files:
+      - label: "Alle commissies"
+        name: "commissies"
+        file: "content/commissies/index.json"
+        fields:
+          - label: "Commissies"
+            name: "items"
+            widget: "list"
+            collapsed: false
+            fields:
+              - { label: "Naam", name: "name", widget: "string" }
+              - { label: "Beschrijving", name: "desc", widget: "text" }
+              - label: "Kaartkleur"
+                name: "color"
+                widget: "select"
+                options:
+                  - { label: "Paars diep", value: "linear-gradient(135deg,#3D1F7A,#7B3FAF)" }
+                  - { label: "Paars licht", value: "linear-gradient(135deg,#5B2D8E,#A855C8)" }
+                  - { label: "Paars donker", value: "linear-gradient(135deg,#2D1B69,#5B2D8E)" }
+                  - { label: "Blauw", value: "linear-gradient(135deg,#1e3a5f,#2D6AA0)" }
+                  - { label: "Groen", value: "linear-gradient(135deg,#1a4731,#22c55e)" }
+              - { label: "Emoji", name: "emoji", widget: "string", default: "🏛️" }
+              - { label: "E-mail", name: "email", widget: "string", required: false }
+              - { label: "Foto", name: "photo", widget: "image", required: false }
+              - label: "Leden"
+                name: "members"
+                widget: "list"
+                required: false
+                fields:
+                  - { label: "Naam", name: "name", widget: "string" }
+                  - { label: "Rol in commissie", name: "role", widget: "string", required: false }
+
   - name: "nieuws"
     label: "Nieuwsberichten"
     files:
