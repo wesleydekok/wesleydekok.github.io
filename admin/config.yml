@@ -133,13 +133,6 @@ collections:
               - { label: "Emoji", name: "emoji", widget: "string", default: "🏛️" }
               - { label: "E-mail", name: "email", widget: "string", required: false }
               - { label: "Foto", name: "photo", widget: "image", required: false }
-              - label: "Leden"
-                name: "members"
-                widget: "list"
-                required: false
-                fields:
-                  - { label: "Naam", name: "name", widget: "string" }
-                  - { label: "Rol in commissie", name: "role", widget: "string", required: false }
 
   - name: "nieuws"
     label: "Nieuwsberichten"

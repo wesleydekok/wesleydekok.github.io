@@ -60,19 +60,6 @@
     font-size: 0.88rem; color: #6a5a8a; line-height: 1.6; margin-bottom: 1.2rem;
   }
 
-  .committee-members { border-top: 1px solid rgba(91,45,142,0.1); padding-top: 1rem; }
-  .committee-members-title {
-    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--purple-light); font-weight: 500; margin-bottom: 0.7rem;
-  }
-  .member-row {
-    display: flex; justify-content: space-between; align-items: center;
-    font-size: 0.82rem; color: var(--purple-deep);
-    padding: 0.3rem 0; border-bottom: 1px solid rgba(91,45,142,0.05);
-  }
-  .member-row:last-child { border-bottom: none; }
-  .member-role { color: #9a8aaa; font-size: 0.75rem; }
-
   .committee-email {
     display: inline-block; margin-top: 1rem;
     font-size: 0.8rem; color: var(--purple-light);
@@ -232,19 +219,6 @@
         ? '<img src="' + escHtml(c.photo) + '" alt="' + escHtml(c.name) + '" class="committee-photo"><div class="committee-overlay"></div>'
         : '<span class="committee-emoji">' + escHtml(c.emoji || '🏛️') + '</span><div class="committee-overlay"></div>';
 
-      var membersHtml = '';
-      if (c.members && c.members.length) {
-        membersHtml = '<div class="committee-members">' +
-          '<p class="committee-members-title">Members</p>' +
-          c.members.map(function(m) {
-            return '<div class="member-row">' +
-              '<span>' + escHtml(m.name) + '</span>' +
-              (m.role ? '<span class="member-role">' + escHtml(m.role) + '</span>' : '') +
-            '</div>';
-          }).join('') +
-        '</div>';
-      }
-
       var emailHtml = c.email
         ? '<a href="mailto:' + escHtml(c.email) + '" class="committee-email">✉ ' + escHtml(c.email) + '</a>'
         : '';
@@ -254,7 +228,6 @@
         '<div class="committee-body">' +
           '<h3 class="committee-name">' + escHtml(c.name) + '</h3>' +
           '<p class="committee-desc">' + escHtml(c.desc) + '</p>' +
-          membersHtml +
           emailHtml +
         '</div>' +
       '</div>';
