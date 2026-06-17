@@ -15,6 +15,14 @@
       "color": "linear-gradient(135deg,#5B2D8E,#A855C8)",
       "emoji": "lm",
       "photo": ""
+    },
+    {
+      "name": "actiecom",
+      "desc": "verzind super leuke actviteiten",
+      "email": "",
+      "color": "linear-gradient(135deg,#2D1B69,#5B2D8E)",
+      "emoji": "acti",
+      "photo": ""
     }
   ]
 }
