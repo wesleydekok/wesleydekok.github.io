@@ -1,1 +1,20 @@
-{"items":[]}
+{
+  "items": [
+    {
+      "name": "kascom",
+      "desc": "geld checken",
+      "email": "",
+      "color": "linear-gradient(135deg,#2D1B69,#5B2D8E)",
+      "emoji": "🏛️",
+      "photo": ""
+    },
+    {
+      "name": "introcon",
+      "desc": "intro ofzo super ciooooooooool",
+      "email": "",
+      "color": "linear-gradient(135deg,#5B2D8E,#A855C8)",
+      "emoji": "lm",
+      "photo": ""
+    }
+  ]
+}
