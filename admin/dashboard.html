@@ -235,6 +235,7 @@
       <button class="tab-btn active" onclick="switchTab('activities',this)">📅 Activities</button>
       <button class="tab-btn" onclick="switchTab('board',this)">👥 Board</button>
       <button class="tab-btn" onclick="switchTab('sponsors',this)">🏢 Sponsors</button>
+      <button class="tab-btn" onclick="switchTab('committees',this)">🏛️ Committees</button>
       <button class="tab-btn" onclick="switchTab('settings',this)">⚙️ Settings</button>
     </div>
 
@@ -267,6 +268,17 @@
         <button class="btn btn-purple btn-sm" onclick="openSponsorModal()">+ New sponsor</button>
       </div>
       <div id="sponsorList" class="row-list">
+        <p class="empty-msg">Loading…</p>
+      </div>
+    </div>
+
+    <!-- COMMITTEES -->
+    <div class="tab-panel" id="tab-committees">
+      <div class="panel-header">
+        <h2>Committees</h2>
+        <button class="btn btn-purple btn-sm" onclick="openCommitteeModal()">+ New committee</button>
+      </div>
+      <div id="committeeList" class="row-list">
         <p class="empty-msg">Loading…</p>
       </div>
     </div>
@@ -515,6 +527,62 @@
   </div>
 </div>
 
+<!-- Committee modal -->
+<div class="modal-overlay" id="committeeModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <h3 class="modal-title" id="committeeModalTitle">New committee</h3>
+      <button class="modal-close" onclick="closeModal('committeeModal')">×</button>
+    </div>
+    <div class="field" style="margin-bottom:1rem;">
+      <label>Photo (optional)</label>
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <img id="cm-photo-preview" src="" alt="" style="width:72px;height:72px;border-radius:8px;object-fit:cover;background:#e8d5f5;display:none;border:2px solid var(--purple-pale);">
+        <div id="cm-photo-placeholder" style="width:72px;height:72px;border-radius:8px;background:rgba(91,45,142,0.12);display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;">🏛️</div>
+        <div>
+          <input type="file" id="cm-photo-file" accept="image/*" onchange="previewCommissiePhoto(this)" style="display:none;">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('cm-photo-file').click()">Choose photo</button>
+          <div id="cm-photo-name" style="font-size:0.78rem;color:#9a8aaa;margin-top:0.3rem;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Name *</label>
+        <input type="text" id="cm-name" placeholder="Committee name">
+      </div>
+      <div class="field">
+        <label>E-mail (optional)</label>
+        <input type="email" id="cm-email" placeholder="committee@zuyd.nl">
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:0.9rem;">
+      <label>Description</label>
+      <textarea id="cm-desc" rows="3" placeholder="Short description visible on the card"></textarea>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Card color</label>
+        <select id="cm-color">
+          <option value="linear-gradient(135deg,#2D1B69,#5B2D8E)">Purple dark</option>
+          <option value="linear-gradient(135deg,#3D1F7A,#7B3FAF)">Purple mid</option>
+          <option value="linear-gradient(135deg,#5B2D8E,#A855C8)">Purple light</option>
+          <option value="linear-gradient(135deg,#1e3a5f,#2D6AA0)">Blue</option>
+          <option value="linear-gradient(135deg,#1a4731,#22c55e)">Green</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Emoji</label>
+        <input type="text" id="cm-emoji" placeholder="🏛️" maxlength="4" style="font-size:1.4rem;">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('committeeModal')">Cancel</button>
+      <button class="btn btn-purple" id="saveCommitteeBtn" onclick="saveCommittee()" style="min-width:140px;">Save committee</button>
+    </div>
+  </div>
+</div>
+
 <!-- Token modal -->
 <div class="modal-overlay" id="tokenModal">
   <div class="modal" style="max-width:440px;">
@@ -546,8 +614,9 @@ var BRANCH = 'main';
 var ACT_PATH      = 'content/activiteiten/index.json';
 var BOARD_PATH    = 'content/bestuur/index.json';
 var SPONSOR_PATH  = 'content/sponsors/index.json';
-var SETTINGS_PATH = 'content/settings.json';
-var AUTH_PATH     = 'admin/auth.json';
+var SETTINGS_PATH    = 'content/settings.json';
+var AUTH_PATH        = 'admin/auth.json';
+var COMMISSIES_PATH  = 'content/commissies/index.json';
 
 var authSha = '';
 var remoteHash = '';
@@ -556,10 +625,12 @@ var settingsSha = '';
 var activities = [], actSha = '';
 var members = [], memberSha = '';
 var sponsors = [], sponsorSha = '';
-var editEvIdx = -1, editMbIdx = -1, editSpIdx = -1;
+var commissies = [], commissiesSha = '';
+var editEvIdx = -1, editMbIdx = -1, editSpIdx = -1, editCmIdx = -1;
 var dirty = false;
 var selectedPhotoFile = null;
 var selectedSponsorLogoFile = null;
+var selectedCommissiePhotoFile = null;
 
 /* -------- PASSWORD -------- */
 async function sha256(str) {
@@ -746,10 +817,12 @@ async function loadAll() {
   try { var a = await ghGet(ACT_PATH);      activities = a.content.items || []; actSha = a.sha; } catch(e) { activities = []; }
   try { var b = await ghGet(BOARD_PATH);    members    = b.content.items || []; memberSha = b.sha; } catch(e) { members = []; }
   try { var s = await ghGet(SPONSOR_PATH);  sponsors   = s.content.items || (Array.isArray(s.content) ? s.content : []); sponsorSha = s.sha; } catch(e) { sponsors = []; }
+  try { var c = await ghGet(COMMISSIES_PATH); commissies = c.content.items || []; commissiesSha = c.sha; } catch(e) { commissies = []; }
   try { var cfg = await ghGet(SETTINGS_PATH); settingsSha = cfg.sha; var yr = cfg.content.currentBoardYear; if (yr) document.getElementById('currentBoardYear').value = yr; } catch(e) {}
   renderEvents();
   renderMembers();
   renderSponsors();
+  renderCommittees();
 }
 
 /* -------- TABS -------- */
@@ -1075,6 +1148,115 @@ async function deleteSponsor(idx) {
   if (s.logo) ghDeleteFile(s.logo);
 }
 
+/* -------- COMMITTEES -------- */
+function renderCommittees() {
+  var el = document.getElementById('committeeList');
+  if (!commissies.length) { el.innerHTML = '<p class="empty-msg">No committees yet. Click "+ New committee" to add one.</p>'; return; }
+  el.innerHTML = commissies.map(function(c, i) {
+    return '<div class="data-row">' +
+      '<span class="row-icon">'+(c.emoji||'🏛️')+'</span>' +
+      '<div class="row-info">' +
+        '<div class="row-title">'+(c.name||'Untitled')+'</div>' +
+        '<div class="row-meta">'+(c.desc ? c.desc.substring(0,60)+(c.desc.length>60?'…':'') : '—')+(c.email?' · '+c.email:'')+'</div>' +
+      '</div>' +
+      '<div class="row-actions">' +
+        '<button class="btn btn-ghost btn-sm" onclick="openCommitteeModal('+i+')">Edit</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="deleteCommittee('+i+')">Delete</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function previewCommissiePhoto(input) {
+  selectedCommissiePhotoFile = input.files[0] || null;
+  var preview = document.getElementById('cm-photo-preview');
+  var placeholder = document.getElementById('cm-photo-placeholder');
+  var label = document.getElementById('cm-photo-name');
+  if (selectedCommissiePhotoFile) {
+    label.textContent = selectedCommissiePhotoFile.name;
+    var reader = new FileReader();
+    reader.onload = function(e) { preview.src = e.target.result; preview.style.display = 'block'; placeholder.style.display = 'none'; };
+    reader.readAsDataURL(selectedCommissiePhotoFile);
+  } else {
+    preview.style.display = 'none'; placeholder.style.display = 'flex'; label.textContent = '';
+  }
+}
+
+async function ghUploadCommissiePhoto(file, name) {
+  var slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  var ext = file.name.split('.').pop().toLowerCase() || 'jpg';
+  var path = 'uploads/commissies/' + slug + '-' + Date.now() + '.' + ext;
+  var arrayBuf = await file.arrayBuffer();
+  var bytes = new Uint8Array(arrayBuf);
+  var binary = ''; bytes.forEach(function(b) { binary += String.fromCharCode(b); });
+  var r = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + path, {
+    method: 'PUT',
+    headers: { Authorization: 'token ' + getToken(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: 'Upload photo for ' + name, content: btoa(binary), branch: BRANCH })
+  });
+  if (!r.ok) { var e = await r.json(); throw new Error(e.message || 'Photo upload failed.'); }
+  return 'https://raw.githubusercontent.com/' + REPO + '/' + BRANCH + '/' + path;
+}
+
+function openCommitteeModal(idx) {
+  editCmIdx = idx !== undefined ? idx : -1;
+  var c = editCmIdx >= 0 ? commissies[editCmIdx] : {};
+  selectedCommissiePhotoFile = null;
+  document.getElementById('committeeModalTitle').textContent = editCmIdx >= 0 ? 'Edit committee' : 'New committee';
+  document.getElementById('cm-name').value  = c.name  || '';
+  document.getElementById('cm-desc').value  = c.desc  || '';
+  document.getElementById('cm-email').value = c.email || '';
+  document.getElementById('cm-color').value = c.color || 'linear-gradient(135deg,#3D1F7A,#7B3FAF)';
+  document.getElementById('cm-emoji').value = c.emoji || '🏛️';
+  document.getElementById('cm-photo-file').value = '';
+  document.getElementById('cm-photo-name').textContent = '';
+  var preview = document.getElementById('cm-photo-preview');
+  var placeholder = document.getElementById('cm-photo-placeholder');
+  if (c.photo) { preview.src = c.photo; preview.style.display = 'block'; placeholder.style.display = 'none'; }
+  else { preview.src = ''; preview.style.display = 'none'; placeholder.style.display = 'flex'; }
+  openModal('committeeModal');
+}
+
+async function saveCommittee() {
+  var name = document.getElementById('cm-name').value.trim();
+  if (!name) { alert('Name is required.'); return; }
+  var btn = document.getElementById('saveCommitteeBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    var existing = editCmIdx >= 0 ? commissies[editCmIdx] : {};
+    var photoUrl = existing.photo || '';
+    if (selectedCommissiePhotoFile) {
+      if (!getToken()) { alert('Add a GitHub token in Settings before uploading a photo.'); return; }
+      photoUrl = await ghUploadCommissiePhoto(selectedCommissiePhotoFile, name);
+    }
+    var c = {
+      name:  name,
+      desc:  document.getElementById('cm-desc').value.trim(),
+      email: document.getElementById('cm-email').value.trim(),
+      color: document.getElementById('cm-color').value,
+      emoji: document.getElementById('cm-emoji').value.trim() || '🏛️',
+      photo: photoUrl
+    };
+    if (editCmIdx >= 0) commissies[editCmIdx] = c; else commissies.push(c);
+    closeModal('committeeModal');
+    renderCommittees();
+    markDirty();
+  } catch(e) {
+    alert('Photo upload failed: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save committee';
+  }
+}
+
+async function deleteCommittee(idx) {
+  var c = commissies[idx];
+  if (!confirm('Delete "'+c.name+'"?')) return;
+  commissies.splice(idx, 1);
+  renderCommittees();
+  markDirty();
+  if (c.photo) ghDeleteFile(c.photo);
+}
+
 /* -------- SETTINGS -------- */
 async function saveBoardYearSetting() {
   if (!getToken()) { setAlert('boardYearAlert','GitHub token required.','error'); return; }
@@ -1107,9 +1289,10 @@ async function saveAll() {
   btn.disabled = true; btn.textContent = 'Saving…';
   status.textContent = ''; status.className = '';
   try {
-    actSha    = await ghPut(ACT_PATH,     { items: activities }, actSha,    'Update activities via admin');
-    memberSha = await ghPut(BOARD_PATH,   { items: members    }, memberSha, 'Update board via admin');
-    sponsorSha = await ghPut(SPONSOR_PATH, { items: sponsors  }, sponsorSha, 'Update sponsors via admin');
+    actSha       = await ghPut(ACT_PATH,       { items: activities }, actSha,       'Update activities via admin');
+    memberSha    = await ghPut(BOARD_PATH,     { items: members    }, memberSha,    'Update board via admin');
+    sponsorSha   = await ghPut(SPONSOR_PATH,   { items: sponsors   }, sponsorSha,   'Update sponsors via admin');
+    commissiesSha = await ghPut(COMMISSIES_PATH, { items: commissies }, commissiesSha, 'Update committees via admin');
     dirty = false;
     document.getElementById('saveBar').classList.remove('show');
     status.textContent = '✓ Published!'; status.className = 'ok';
